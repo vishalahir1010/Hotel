@@ -89,23 +89,23 @@
 .search-bar-container {
   position: relative;
   width: 100%;
-  max-width: 1020px;
-  margin: 28px auto 0;
+  max-width: 900px;
+  margin: 0 auto;
   z-index: 10;
 }
 
 .search-bar {
-  border-radius: 20px;
-  padding: 22px 28px;
-  box-shadow: 0 22px 80px rgba(0,0,0,0.28);
+  border-radius: 18px;
+  padding: 20px 28px;
+  box-shadow: 0 20px 70px rgba(0,0,0,0.25);
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 14px;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
-  background: rgba(18, 33, 51, 0.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(19, 44, 63, 0.78);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
@@ -115,8 +115,8 @@
   gap: 6px;
   text-align: left;
   position: relative;
-  flex: 1 1 220px;
-  min-width: 190px;
+  flex: 1 1 130px;
+  min-width: 120px;
 }
 
 .search-field:not(:last-of-type)::after {
