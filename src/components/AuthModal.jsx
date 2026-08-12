@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, Mail, Lock, User as UserIcon, ShieldAlert, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export const AuthModal = ({ isOpen, onClose, auth }) => {
@@ -12,6 +13,7 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
     sendPasswordReset
   } = auth;
 
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,10 +36,13 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    const success = await login(email, password);
+    const result = await login(email, password);
     setSubmitting(false);
-    if (success) {
+    if (result && result.success) {
       onClose();
+      if (result.role === 'admin') {
+        navigate('/admin');
+      }
     }
   };
 
@@ -339,24 +344,8 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
           </div>
         )}
 
-        {/* Guest credentials hints */}
-        {authStep === 'login' && (
-          <div 
-            style={{
-              marginTop: '30px',
-              padding: '12px',
-              border: '1px dashed var(--gold-border)',
-              borderRadius: 'var(--border-radius-sm)',
-              fontSize: '0.75rem',
-              color: 'var(--text-muted)',
-              textAlign: 'left'
-            }}
-          >
-            <strong style={{ color: 'var(--gold-primary)' }}>VIP Guest Quick Test Account:</strong><br />
-            Email: <code style={{ color: 'var(--text-primary)' }}>lord@aurelia.com</code><br />
-            Password: <code style={{ color: 'var(--text-primary)' }}>password123</code>
-          </div>
-        )}
+
+
       </div>
     </div>
   );

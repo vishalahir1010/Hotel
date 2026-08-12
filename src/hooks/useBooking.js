@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { hotelApi } from '../api/hotelApi.js';
+import { useState, useEffect } from "react";
+import { hotelApi } from "../api/hotelApi.js";
 
 const getTomorrowString = () => {
   const d = new Date();
   d.setDate(d.getDate() + 1);
-  return d.toISOString().split('T')[0];
+  return d.toISOString().split("T")[0];
 };
 
 const getThreeDaysLaterString = () => {
   const d = new Date();
   d.setDate(d.getDate() + 4);
-  return d.toISOString().split('T')[0];
+  return d.toISOString().split("T")[0];
 };
 
 export const useBooking = () => {
@@ -18,14 +18,14 @@ export const useBooking = () => {
   const [checkIn, setCheckIn] = useState(getTomorrowString());
   const [checkOut, setCheckOut] = useState(getThreeDaysLaterString());
   const [guests, setGuests] = useState(2);
-  const [roomType, setRoomType] = useState('all');
-  
+  const [roomType, setRoomType] = useState("all");
+
   // Confirmed search parameters (after search click)
   const [activeFilters, setActiveFilters] = useState({
     checkIn: getTomorrowString(),
     checkOut: getThreeDaysLaterString(),
     guests: 2,
-    roomType: 'all'
+    roomType: "all",
   });
 
   // API database states
@@ -36,27 +36,27 @@ export const useBooking = () => {
 
   // Selected room for checkout
   const [selectedRoom, setSelectedRoom] = useState(null);
-  
+
   // Custom booking addons
   const [selectedAddons, setSelectedAddons] = useState([]);
-  
+
   // Wizard steps: 1 = Addons, 2 = Form & Card, 3 = Ticket Receipt
   const [bookingStep, setBookingStep] = useState(1);
 
   // Checkout inputs
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    requests: '',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvv: '',
-    cardName: ''
+    name: "",
+    email: "",
+    phone: "",
+    requests: "",
+    cardNumber: "",
+    cardExpiry: "",
+    cardCvv: "",
+    cardName: "",
   });
 
   // Booking Reference number
-  const [bookingRef, setBookingRef] = useState('');
+  const [bookingRef, setBookingRef] = useState("");
 
   // Fetch addons on init
   useEffect(() => {
@@ -66,7 +66,7 @@ export const useBooking = () => {
         const data = await hotelApi.getAddons();
         setAddons(data);
       } catch (err) {
-        console.error('Failed to load addons', err);
+        console.error("Failed to load addons", err);
       } finally {
         setLoadingAddons(false);
       }
@@ -81,11 +81,11 @@ export const useBooking = () => {
       try {
         const data = await hotelApi.getRooms({
           guests: activeFilters.guests,
-          roomType: activeFilters.roomType
+          roomType: activeFilters.roomType,
         });
         setRooms(data);
       } catch (err) {
-        console.error('Failed to load rooms', err);
+        console.error("Failed to load rooms", err);
       } finally {
         setLoadingRooms(false);
       }
@@ -99,12 +99,12 @@ export const useBooking = () => {
       checkIn,
       checkOut,
       guests,
-      roomType
+      roomType,
     });
     // Scroll to rooms section
-    const roomsSection = document.getElementById('rooms');
+    const roomsSection = document.getElementById("rooms");
     if (roomsSection) {
-      roomsSection.scrollIntoView({ behavior: 'smooth' });
+      roomsSection.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -125,21 +125,21 @@ export const useBooking = () => {
     setSelectedAddons([]);
     setBookingStep(1);
     setForm({
-      name: '',
-      email: '',
-      phone: '',
-      requests: '',
-      cardNumber: '',
-      cardExpiry: '',
-      cardCvv: '',
-      cardName: ''
+      name: "",
+      email: "",
+      phone: "",
+      requests: "",
+      cardNumber: "",
+      cardExpiry: "",
+      cardCvv: "",
+      cardName: "",
     });
-    setBookingRef('');
+    setBookingRef("");
   };
 
   const toggleAddon = (addonId) => {
     if (selectedAddons.includes(addonId)) {
-      setSelectedAddons(selectedAddons.filter(id => id !== addonId));
+      setSelectedAddons(selectedAddons.filter((id) => id !== addonId));
     } else {
       setSelectedAddons([...selectedAddons, addonId]);
     }
@@ -148,13 +148,19 @@ export const useBooking = () => {
   // Billing Math
   const getBillingDetails = () => {
     if (!selectedRoom) {
-      return { roomTotal: 0, addonsTotal: 0, luxuryTax: 0, resortFee: 0, totalPrice: 0 };
+      return {
+        roomTotal: 0,
+        addonsTotal: 0,
+        luxuryTax: 0,
+        resortFee: 0,
+        totalPrice: 0,
+      };
     }
 
     const roomTotal = selectedRoom.price * nights;
-    
+
     const addonsTotal = selectedAddons.reduce((sum, id) => {
-      const addon = addons.find(a => a.id === id);
+      const addon = addons.find((a) => a.id === id);
       if (!addon) return sum;
       return sum + (addon.perNight ? addon.price * nights : addon.price);
     }, 0);
@@ -168,7 +174,7 @@ export const useBooking = () => {
       addonsTotal,
       luxuryTax,
       resortFee,
-      totalPrice
+      totalPrice,
     };
   };
 
@@ -178,7 +184,7 @@ export const useBooking = () => {
   const nextStep = () => {
     if (bookingStep === 2) {
       // Simulate booking reference generation on final completion
-      const ref = 'AUR-' + Math.floor(100000 + Math.random() * 900000);
+      const ref = "AUR-" + Math.floor(100000 + Math.random() * 900000);
       setBookingRef(ref);
       setBookingStep(3);
     } else {
@@ -194,11 +200,15 @@ export const useBooking = () => {
 
   return {
     // Inputs
-    checkIn, setCheckIn,
-    checkOut, setCheckOut,
-    guests, setGuests,
-    roomType, setRoomType,
-    
+    checkIn,
+    setCheckIn,
+    checkOut,
+    setCheckOut,
+    guests,
+    setGuests,
+    roomType,
+    setRoomType,
+
     // Active filters
     activeFilters,
     setActiveFilters,
@@ -211,17 +221,21 @@ export const useBooking = () => {
     loadingAddons,
 
     // Booking states
-    selectedRoom, setSelectedRoom,
-    selectedAddons, toggleAddon,
-    bookingStep, setBookingStep,
-    form, setForm,
+    selectedRoom,
+    setSelectedRoom,
+    selectedAddons,
+    toggleAddon,
+    bookingStep,
+    setBookingStep,
+    form,
+    setForm,
     bookingRef,
     nights,
     billing,
-    
+
     // Actions
     resetBooking,
     nextStep,
-    prevStep
+    prevStep,
   };
 };

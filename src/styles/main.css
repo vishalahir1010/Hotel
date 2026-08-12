@@ -1,0 +1,187 @@
+/* CSS Design System for Aurelia Resort & Spa */
+:root {
+  /* Cool Coastal Background */
+  --bg-dark: #F5F8FB;
+  --bg-surface: #FFFFFF;
+  --bg-card: #EDF4F8;
+  --bg-card-elevated: #FFFFFF;
+
+  /* Soft Ocean Accents */
+  --gold-primary: #2F5D7A;
+  --gold-accent: #7AB4C6;
+  --gold-light: #D8E9F1;
+  --gold-dark: #173447;
+  --gold-glow: rgba(122, 180, 198, 0.16);
+  --gold-border: rgba(47, 93, 122, 0.18);
+  --gold-border-solid: #2F5D7A;
+
+  /* Dark Text on Light BG */
+  --text-primary: #112A3B;
+  --text-secondary: #4F6F86;
+  --text-muted: #6C8394;
+
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+  --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: all 0.2s ease;
+
+  --shadow-gold: 0 10px 30px -10px rgba(47, 93, 122, 0.18);
+  --shadow-dark: 0 20px 40px -15px rgba(0, 0, 0, 0.12);
+  --border-radius-lg: 16px;
+  --border-radius-md: 10px;
+  --border-radius-sm: 6px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-primary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dark);
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  color: var(--text-primary);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* Helper Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInSimple {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes goldGlow {
+  0% { box-shadow: 0 0 5px rgba(47, 93, 122, 0.18); }
+  50% { box-shadow: 0 0 20px rgba(47, 93, 122, 0.35); }
+  100% { box-shadow: 0 0 5px rgba(47, 93, 122, 0.18); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes load {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Root overwrite */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography styles */
+.gold-text {
+  color: var(--gold-primary);
+  background: linear-gradient(135deg, var(--gold-accent) 0%, var(--gold-primary) 50%, var(--gold-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+/* Custom premium components */
+.gold-button {
+  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+  color: #FFFFFF;
+  border: none;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 12px 28px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 4px 15px rgba(47, 93, 122, 0.24);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gold-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(47, 93, 122, 0.35);
+  background: linear-gradient(135deg, var(--gold-accent), var(--gold-primary));
+}
+
+.gold-button:active {
+  transform: translateY(0);
+}
+
+.outline-button {
+  background: transparent;
+  color: var(--gold-primary);
+  border: 1px solid var(--gold-border);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  padding: 12px 28px;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.outline-button:hover {
+  border-color: var(--gold-primary);
+  background: rgba(47, 93, 122, 0.08);
+  color: var(--gold-dark);
+}
+
+/* Glassmorphism containers - Light version */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--gold-border);
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Compass, Menu, X, PhoneCall, User as UserIcon } from 'lucide-react';
 
 export const Navbar = ({ 
@@ -11,6 +11,8 @@ export const Navbar = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,7 +33,7 @@ export const Navbar = ({
   };
 
   return (
-    <header className={`navbar-container ${isScrolled ? 'scrolled' : ''}`}>
+    <header className={`navbar-container ${isScrolled ? 'scrolled' : ''} ${!isHomePage ? 'always-solid' : ''}`}>
       <div className="navbar">
         <div className="logo-container" onClick={() => handleNavClick('/')}>
           <Compass className="logo-icon animate-float" />

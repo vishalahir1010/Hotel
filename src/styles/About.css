@@ -1,0 +1,95 @@
+/* About / Brand Story Section */
+.about-section {
+  padding: 160px 40px 100px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.about-text {
+  text-align: left;
+}
+
+.section-tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold-primary);
+  margin-bottom: 15px;
+  font-weight: 600;
+  display: block;
+}
+
+.section-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.2;
+  margin-bottom: 25px;
+  font-weight: 300;
+}
+
+.about-desc {
+  color: var(--text-muted);
+  margin-bottom: 30px;
+  font-size: 1.05rem;
+}
+
+.about-highlights {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 40px;
+}
+
+.highlight-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.highlight-num {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  color: var(--gold-primary);
+  font-weight: 300;
+}
+
+.highlight-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.about-images {
+  position: relative;
+  height: 550px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-img-large {
+  width: 75%;
+  height: 85%;
+  border-radius: var(--border-radius-md);
+  object-fit: cover;
+  border: 1px solid var(--gold-border);
+  box-shadow: var(--shadow-dark);
+}
+
+.about-img-small {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  height: 55%;
+  border-radius: var(--border-radius-md);
+  object-fit: cover;
+  border: 2px solid var(--bg-dark);
+  box-shadow: var(--shadow-dark), var(--shadow-gold);
+  transform: translate(15%, -15%);
+}
+

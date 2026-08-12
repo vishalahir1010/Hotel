@@ -149,42 +149,43 @@ export const BookRoomPage = ({ user }) => {
         flexDirection: 'column' 
       }}
     >
-      {/* Premium Header */}
+      {/* Premium Header - Light Theme */}
       <header 
         style={{ 
-          padding: '20px 40px', 
+          padding: '16px 40px', 
           borderBottom: '1px solid var(--gold-border)', 
-          backgroundColor: 'rgba(9, 9, 11, 0.85)',
-          backdropFilter: 'blur(12px)',
+          backgroundColor: 'rgba(255, 255, 255, 0.97)',
+          backdropFilter: 'blur(16px)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           position: 'sticky',
           top: 0,
-          zIndex: 10
+          zIndex: 10,
+          boxShadow: '0 2px 20px rgba(0,0,0,0.06)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <button 
-            onClick={() => navigate('/')} 
+            onClick={() => navigate('/suites')} 
             className="outline-button"
             style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem' }}
           >
             <ArrowLeft size={14} />
-            <span>Suites</span>
+            <span>Back to Suites</span>
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }} onClick={() => navigate('/')}>
-            <Compass size={24} style={{ color: 'var(--gold-primary)' }} />
-            <span style={{ fontFamily: 'var(--font-serif)', letterSpacing: '0.08em', fontSize: '1.2rem' }}>AURELIA</span>
+            <Compass size={22} style={{ color: 'var(--gold-primary)' }} />
+            <span style={{ fontFamily: 'var(--font-serif)', letterSpacing: '0.08em', fontSize: '1.2rem', color: 'var(--text-primary)' }}>AURELIA</span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '15px', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-          <span className={step >= 1 ? 'gold-text' : 'text-muted'} style={{ fontWeight: step === 1 ? 600 : 400 }}>1. Upgrade</span>
+        <div style={{ display: 'flex', gap: '15px', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
+          <span className={step >= 1 ? 'gold-text' : ''} style={{ fontWeight: step === 1 ? 600 : 400 }}>1. Upgrade</span>
           <span style={{ color: 'var(--gold-border)' }}>&mdash;</span>
-          <span className={step >= 2 ? 'gold-text' : 'text-muted'} style={{ fontWeight: step === 2 ? 600 : 400 }}>2. Billing</span>
+          <span className={step >= 2 ? 'gold-text' : ''} style={{ fontWeight: step === 2 ? 600 : 400 }}>2. Billing</span>
           <span style={{ color: 'var(--gold-border)' }}>&mdash;</span>
-          <span className={step >= 3 ? 'gold-text' : 'text-muted'} style={{ fontWeight: step === 3 ? 600 : 400 }}>3. Receipt</span>
+          <span className={step >= 3 ? 'gold-text' : ''} style={{ fontWeight: step === 3 ? 600 : 400 }}>3. Receipt</span>
         </div>
       </header>
 
@@ -205,14 +206,14 @@ export const BookRoomPage = ({ user }) => {
         <aside 
           style={{ 
             padding: '40px', 
-            borderRight: '1px solid rgba(255,255,255,0.03)', 
-            backgroundColor: 'rgba(255,255,255,0.01)', 
+            borderRight: '1px solid var(--gold-border)', 
+            backgroundColor: 'var(--bg-card)', 
             display: 'flex', 
             flexDirection: 'column', 
             gap: '30px',
             position: 'sticky',
-            top: '80px',
-            height: 'calc(100vh - 80px)',
+            top: '72px',
+            height: 'calc(100vh - 72px)',
             overflowY: 'auto'
           }}
           className="booking-summary-sidebar"
@@ -308,7 +309,7 @@ export const BookRoomPage = ({ user }) => {
               <span>+${resortFee}</span>
             </div>
 
-            <div className="summary-row total" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '15px', marginTop: '15px' }}>
+            <div className="summary-row total" style={{ borderTop: '1px solid var(--gold-border)', paddingTop: '15px', marginTop: '15px' }}>
               <span style={{ fontSize: '0.95rem', fontWeight: 600 }}>Total Cost</span>
               <span className="gold-price" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.4rem', color: 'var(--gold-primary)' }}>${totalPrice}</span>
             </div>

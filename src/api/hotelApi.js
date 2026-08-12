@@ -1,3 +1,5 @@
+const API_URL = 'http://localhost:5000/api';
+
 export const ROOMS_DATA = [
   {
     id: 'azure-ocean',
@@ -13,7 +15,8 @@ export const ROOMS_DATA = [
       'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80'
     ],
     description: 'Unwind in absolute luxury with floor-to-ceiling glass doors opening onto a private white marble terrace overlooking the sparkling Mediterranean waves.',
-    amenities: ['Private Balcony', 'Marble Bath', 'King Bed', 'Espresso Bar', 'Sommelier Selection']
+    amenities: ['Private Balcony', 'Marble Bath', 'King Bed', 'Espresso Bar', 'Sommelier Selection'],
+    badge: null
   },
   {
     id: 'sunset-horizon',
@@ -29,7 +32,8 @@ export const ROOMS_DATA = [
       'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80'
     ],
     description: 'Bask in golden hour views from your personal outdoor jacuzzi. Features integrated luxury automation and bespoke teak wood furniture.',
-    amenities: ['Outdoor Jacuzzi', 'Teak Terrace', 'Automated Blinds', 'King Bed', 'Rain Shower']
+    amenities: ['Outdoor Jacuzzi', 'Teak Terrace', 'Automated Blinds', 'King Bed', 'Rain Shower'],
+    badge: null
   },
   {
     id: 'panoramic-vista',
@@ -40,6 +44,7 @@ export const ROOMS_DATA = [
     size: 780,
     capacity: 2,
     view: 'High-Altitude Bay View',
+    badge: 'Best Value',
     images: [
       'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80'
@@ -56,6 +61,7 @@ export const ROOMS_DATA = [
     size: 1250,
     capacity: 3,
     view: 'Panoramic Cliff & Ocean View',
+    badge: 'Most Popular',
     images: [
       'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80'
@@ -77,7 +83,8 @@ export const ROOMS_DATA = [
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
     ],
     description: 'Tucked away in a private cove, featuring a private white sand beach strip, private cinema room, personal chef, and independent spa treatment salon.',
-    amenities: ['Private Beach Strip', 'Cinema Room', 'In-Villa Spa Room', 'Personal Chef', 'Secured Compound']
+    amenities: ['Private Beach Strip', 'Cinema Room', 'In-Villa Spa Room', 'Personal Chef', 'Secured Compound'],
+    badge: null
   },
   {
     id: 'overwater-palace',
@@ -88,6 +95,7 @@ export const ROOMS_DATA = [
     size: 4200,
     capacity: 8,
     view: 'Full Marine Lagoon Access',
+    badge: 'Signature',
     images: [
       'https://images.unsplash.com/photo-1439066615861-d1af74d74000?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'
@@ -109,7 +117,8 @@ export const ROOMS_DATA = [
       'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
     ],
     description: 'The absolute pinnacle of luxury. A magnificent duplex penthouse featuring a private rooftop jacuzzi, executive dining salon, and baby grand piano.',
-    amenities: ['Rooftop Jacuzzi', 'Baby Grand Piano', 'Helicopter Transfer', 'Duplex Design', 'VIP Club Access']
+    amenities: ['Rooftop Jacuzzi', 'Baby Grand Piano', 'Helicopter Transfer', 'Duplex Design', 'VIP Club Access'],
+    badge: null
   },
   {
     id: 'serene-garden-suite',
@@ -120,11 +129,12 @@ export const ROOMS_DATA = [
     size: 810,
     capacity: 2,
     view: 'Botanical Sanctuary View',
+    badge: 'New',
     images: [
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80'
     ],
-    description: 'Nestled deep within the resort’s private botanical gardens, surrounded by fragrant jasmine and waterfalls. Ideal for ultimate privacy and peace.',
+    description: 'Nestled deep within the resort\'s private botanical gardens, surrounded by fragrant jasmine and waterfalls. Ideal for ultimate privacy and peace.',
     amenities: ['Private Hammock Garden', 'Outdoor Bathtub', 'Fresh Flowers Daily', 'King Bed', 'Herbal Teabar']
   }
 ];
@@ -139,11 +149,8 @@ export const ADDONS_LIST = [
 
 export const hotelApi = {
   getRooms: async (filters) => {
-    // Simulate API request latency
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    
+    await new Promise(resolve => setTimeout(resolve, 300));
     let rooms = [...ROOMS_DATA];
-    
     if (filters) {
       if (filters.guests) {
         rooms = rooms.filter(r => r.capacity >= filters.guests);
@@ -152,12 +159,26 @@ export const hotelApi = {
         rooms = rooms.filter(r => r.type === filters.roomType);
       }
     }
-    
     return rooms;
   },
-  
+
   getAddons: async () => {
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 200));
     return ADDONS_LIST;
+  },
+
+  createBooking: async (bookingData) => {
+    await new Promise(resolve => setTimeout(resolve, 600));
+    const ref = 'AUR-' + Math.floor(100000 + Math.random() * 900000);
+    return {
+      success: true,
+      booking_ref: ref,
+      total_price: bookingData.total_price,
+      message: 'Booking processed successfully.'
+    };
+  },
+
+  cancelBooking: async (ref) => {
+    return { success: true, message: 'Reservation status set to Cancelled.' };
   }
 };

@@ -12,6 +12,7 @@ import { PremiumLoader } from './components/PremiumLoader.jsx';
 import { BookRoomPage } from './components/BookRoomPage.jsx';
 import { AuthModal } from './components/AuthModal.jsx';
 import { ScrollToTop } from './components/ScrollToTop.jsx';
+import AdminPanel from './components/AdminPanel.jsx';
 import { useBooking } from './hooks/useBooking.js';
 import { useAuth } from './hooks/useAuth.js';
 import './App.css';
@@ -43,6 +44,8 @@ function App() {
 
   // Check if we are on the focused booking page
   const isBookingPage = location.pathname.startsWith('/book');
+  const isAdminPage = location.pathname.startsWith('/admin');
+  const isFullscreenPage = isBookingPage || isAdminPage;
 
   // Helper to trigger toast alerts
   const showToast = (message, type = 'success') => {
@@ -144,7 +147,7 @@ function App() {
           <ScrollToTop />
 
           {/* Header Navigation (rendered globally, except on booking page) */}
-          {!isBookingPage && (
+          {!isFullscreenPage && (
             <Navbar 
               onBookClick={handleNavBookClick} 
               user={auth.user}
@@ -179,11 +182,14 @@ function App() {
               
               {/* Dedicated Booking Page */}
               <Route path="/book/:roomId" element={<BookRoomPage user={auth.user} />} />
+
+              {/* Admin Panel */}
+              <Route path="/admin/*" element={<AdminPanel user={auth.user} auth={auth} />} />
             </Routes>
           </main>
 
           {/* Footer Grid (except on booking page) */}
-          {!isBookingPage && <Footer />}
+          {!isFullscreenPage && <Footer />}
 
           {/* Authentication Modal (Sign In / Sign Up / Forgot Password) */}
           <AuthModal 
