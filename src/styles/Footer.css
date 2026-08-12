@@ -51,7 +51,7 @@
 
 /* Footer Section */
 .footer {
-  background-color: #E6F1F7;
+  background-color: var(--bg-card);
   padding: 80px 40px 30px;
   border-top: 1px solid var(--gold-border);
   text-align: left;

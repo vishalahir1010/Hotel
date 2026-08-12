@@ -196,7 +196,7 @@ export const Rooms = ({ rooms, loadingRooms }) => {
           maxWidth: '1200px',
           margin: '30px auto',
           borderRadius: 'var(--border-radius-sm)',
-          border: '1px solid rgba(212, 175, 55, 0.15)',
+          border: '1px solid var(--gold-border)',
           boxShadow: 'var(--shadow-dark)'
         }}
       >
@@ -220,17 +220,23 @@ export const Rooms = ({ rooms, loadingRooms }) => {
             style={{
               width: '100%',
               padding: '12px 15px 12px 42px',
-              backgroundColor: 'rgba(9, 9, 11, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '4px',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--gold-border)',
+              borderRadius: '8px',
               color: 'var(--text-primary)',
               fontFamily: 'var(--font-sans)',
               fontSize: '0.85rem',
               outline: 'none',
-              transition: 'border-color 0.3s'
+              transition: 'border-color 0.3s, box-shadow 0.3s'
             }}
-            onFocus={(e) => e.target.style.borderColor = 'var(--gold-primary)'}
-            onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.08)'}
+            onFocus={(e) => {
+              e.target.style.borderColor = 'var(--gold-primary)';
+              e.target.style.boxShadow = '0 0 0 4px rgba(97, 168, 193, 0.12)';
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = 'var(--gold-border)';
+              e.target.style.boxShadow = 'none';
+            }}
           />
         </div>
 
@@ -245,9 +251,9 @@ export const Rooms = ({ rooms, loadingRooms }) => {
             onChange={(e) => setSortBy(e.target.value)}
             style={{
               padding: '10px 24px 10px 14px',
-              backgroundColor: 'rgba(9, 9, 11, 0.7)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '4px',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--gold-border)',
+              borderRadius: '8px',
               color: 'var(--text-primary)',
               fontFamily: 'var(--font-sans)',
               fontSize: '0.85rem',
@@ -255,9 +261,9 @@ export const Rooms = ({ rooms, loadingRooms }) => {
               cursor: 'pointer'
             }}
           >
-            <option value="popularity" style={{ backgroundColor: 'var(--bg-surface)' }}>Best Rating</option>
-            <option value="price-low" style={{ backgroundColor: 'var(--bg-surface)' }}>Price: Low to High</option>
-            <option value="price-high" style={{ backgroundColor: 'var(--bg-surface)' }}>Price: High to Low</option>
+            <option value="popularity" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}>Best Rating</option>
+            <option value="price-low" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}>Price: Low to High</option>
+            <option value="price-high" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}>Price: High to Low</option>
           </select>
         </div>
       </div>

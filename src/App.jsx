@@ -5,7 +5,6 @@ import { Hero } from './components/Hero.jsx';
 import { About } from './components/About.jsx';
 import { Rooms } from './components/Rooms.jsx';
 import { Amenities } from './components/Amenities.jsx';
-import { Testimonials } from './components/Testimonials.jsx';
 import { FAQ } from './components/FAQ.jsx';
 import { Footer } from './components/Footer.jsx';
 import { PremiumLoader } from './components/PremiumLoader.jsx';
@@ -131,8 +130,6 @@ function App() {
           View Suites & Villas
         </button>
       </section>
-
-      <Testimonials />
     </>
   );
 

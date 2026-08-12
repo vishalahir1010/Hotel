@@ -74,7 +74,7 @@ export const useBooking = () => {
     loadAddons();
   }, []);
 
-  // Fetch rooms on active filter changes
+  // Fetch rooms on any active filter changes
   useEffect(() => {
     const loadRooms = async () => {
       setLoadingRooms(true);
@@ -91,7 +91,7 @@ export const useBooking = () => {
       }
     };
     loadRooms();
-  }, [activeFilters.guests, activeFilters.roomType]);
+  }, [activeFilters]);
 
   // Apply filters when clicking search
   const handleSearchSubmit = () => {

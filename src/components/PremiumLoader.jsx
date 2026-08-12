@@ -54,7 +54,7 @@ export const PremiumLoader = ({ onFinished }) => {
         <Compass 
           size={50} 
           style={{ 
-            color: 'var(--gold-primary)', 
+            color: '#F8F9FB', 
             animation: 'loaderSpin 3s infinite cubic-bezier(0.4, 0, 0.2, 1)' 
           }} 
         />
@@ -66,7 +66,7 @@ export const PremiumLoader = ({ onFinished }) => {
               fontFamily: 'var(--font-serif)',
               fontSize: '1.8rem',
               letterSpacing: '0.15em',
-              color: 'var(--text-primary)',
+              color: '#F8F9FB',
               transform: textStage >= 1 ? 'translateY(0)' : 'translateY(40px)',
               transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
@@ -80,7 +80,7 @@ export const PremiumLoader = ({ onFinished }) => {
             style={{ 
               fontSize: '0.65rem',
               letterSpacing: '0.3em',
-              color: 'var(--gold-primary)',
+              color: '#DCE5ED',
               textTransform: 'uppercase',
               transform: textStage >= 2 ? 'translateY(0)' : 'translateY(20px)',
               transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'

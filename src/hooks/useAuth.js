@@ -9,7 +9,7 @@ import {
   sendPasswordResetEmail,
   updateProfile
 } from 'firebase/auth';
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, collection, addDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase.js';
 
 export const useAuth = () => {
@@ -60,6 +60,15 @@ export const useAuth = () => {
       const userDocRef = doc(db, 'users', result.user.uid);
       const userDoc = await getDoc(userDocRef);
       const role = userDoc.exists() ? userDoc.data().role : 'user';
+
+      // Log login event
+      await addDoc(collection(db, 'authEvents'), {
+        uid: result.user.uid,
+        email: result.user.email,
+        eventType: 'login',
+        timestamp: serverTimestamp(),
+      });
+
       return { success: true, role };
     } catch (err) {
       const msg = getFirebaseErrorMessage(err.code);
@@ -85,6 +94,14 @@ export const useAuth = () => {
         email,
         role: 'user',
         createdAt: serverTimestamp()
+      });
+      // Log signup event
+      await addDoc(collection(db, 'authEvents'), {
+        uid: result.user.uid,
+        name,
+        email,
+        eventType: 'signup',
+        timestamp: serverTimestamp(),
       });
       return true;
     } catch (err) {

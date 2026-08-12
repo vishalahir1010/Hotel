@@ -53,7 +53,10 @@ export const Hero = ({
 
         {/* Embedded Search Bar container aligned below the text */}
         <div className="search-bar-container animate-fade-in">
-          <div className="glass-panel search-bar">
+          <form className="glass-panel search-bar" onSubmit={(e) => {
+            e.preventDefault();
+            onSearch();
+          }}>
             {/* Check In Date */}
             <div className="search-field">
               <label>Check In</label>
@@ -118,10 +121,10 @@ export const Hero = ({
             </div>
 
             {/* Search Trigger Button */}
-            <button className="gold-button search-btn" onClick={onSearch}>
+            <button type="submit" className="gold-button search-btn">
               <span>Search</span>
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </section>

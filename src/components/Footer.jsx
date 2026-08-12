@@ -93,16 +93,6 @@ export const Footer = () => {
           )}
         </div>
       </div>
-
-      <div className="footer-bottom">
-        <span className="footer-copyright">
-          &copy; {new Date().getFullYear()} Aurelia Resort & Spa. All Rights Reserved. Designed for Luxury.
-        </span>
-        <ul className="footer-legal-links">
-          <li><span className="footer-legal-link" style={{ cursor: 'pointer' }}>Privacy Policy</span></li>
-          <li><span className="footer-legal-link" style={{ cursor: 'pointer' }}>Terms & Conditions</span></li>
-        </ul>
-      </div>
     </footer>
   );
 };

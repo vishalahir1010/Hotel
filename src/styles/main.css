@@ -1,24 +1,24 @@
 /* CSS Design System for Aurelia Resort & Spa */
 :root {
   /* Cool Coastal Background */
-  --bg-dark: #F5F8FB;
+  --bg-dark: #F2F8FC;
   --bg-surface: #FFFFFF;
-  --bg-card: #EDF4F8;
+  --bg-card: #EBF4FA;
   --bg-card-elevated: #FFFFFF;
 
   /* Soft Ocean Accents */
-  --gold-primary: #2F5D7A;
-  --gold-accent: #7AB4C6;
-  --gold-light: #D8E9F1;
-  --gold-dark: #173447;
-  --gold-glow: rgba(122, 180, 198, 0.16);
-  --gold-border: rgba(47, 93, 122, 0.18);
-  --gold-border-solid: #2F5D7A;
+  --gold-primary: #1F4F69;
+  --gold-accent: #62A8C1;
+  --gold-light: #D6E8F2;
+  --gold-dark: #102A3D;
+  --gold-glow: rgba(97, 168, 193, 0.18);
+  --gold-border: rgba(31, 79, 105, 0.16);
+  --gold-border-solid: #1F4F69;
 
   /* Dark Text on Light BG */
-  --text-primary: #112A3B;
-  --text-secondary: #4F6F86;
-  --text-muted: #6C8394;
+  --text-primary: #0F2432;
+  --text-secondary: #476B82;
+  --text-muted: #6B8293;
 
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
