@@ -11,22 +11,44 @@
 // 6. In Firebase Console, enable "Firestore Database" (in test mode for now)
 // ====================================================
 
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // TODO: Replace with your actual Firebase config
 const firebaseConfig = {
-apiKey: import.meta.env.VITE_FIREBASE_API_KEY, 
-authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, 
-projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID, 
-storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET, 
-messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID, 
-appId: import.meta.env.VITE_FIREBASE_APP_ID, 
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY, 
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN, 
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID, 
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET, 
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID, 
+  appId: import.meta.env.VITE_FIREBASE_APP_ID, 
 };
 
-const app = initializeApp(firebaseConfig);
+// Check if critical configuration variables are present
+const isConfigValid = 
+  firebaseConfig.apiKey && 
+  firebaseConfig.projectId && 
+  firebaseConfig.apiKey !== 'your_firebase_api_key_here';
 
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+let app = null;
+let auth = null;
+let db = null;
+
+if (isConfigValid) {
+  try {
+    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch (error) {
+    console.error("Error initializing Firebase services:", error);
+  }
+} else {
+  console.warn(
+    "⚠️ Firebase configuration is missing or invalid. Authentication and Database features will not function. " +
+    "Please make sure your environment variables (VITE_FIREBASE_*) are set correctly in your environment (local .env or Netlify settings)."
+  );
+}
+
+export { auth, db };
 export default app;

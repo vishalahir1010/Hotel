@@ -21,10 +21,18 @@ export const useAuth = () => {
 
   // Listen to Firebase auth state changes
   useEffect(() => {
+    if (!auth) {
+      setError("Firebase Authentication is not configured.");
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         // Get extra info (role etc.) from Firestore
         try {
+          if (!db) {
+            throw new Error("Firestore not initialized");
+          }
           const userDocRef = doc(db, 'users', firebaseUser.uid);
           const userDoc = await getDoc(userDocRef);
           const userData = userDoc.exists() ? userDoc.data() : {};
@@ -54,20 +62,39 @@ export const useAuth = () => {
   const login = async (email, password) => {
     setError(null);
     setSuccessMsg(null);
+    if (!auth) {
+      setError("Authentication is currently unavailable. Please verify Firebase configuration.");
+      return { success: false };
+    }
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       // Role check from Firestore
-      const userDocRef = doc(db, 'users', result.user.uid);
-      const userDoc = await getDoc(userDocRef);
-      const role = userDoc.exists() ? userDoc.data().role : 'user';
+      let role = 'user';
+      if (db) {
+        try {
+          const userDocRef = doc(db, 'users', result.user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            role = userDoc.data().role;
+          }
+        } catch (err) {
+          console.warn("Could not fetch user role from Firestore:", err);
+        }
+      }
 
       // Log login event
-      await addDoc(collection(db, 'authEvents'), {
-        uid: result.user.uid,
-        email: result.user.email,
-        eventType: 'login',
-        timestamp: serverTimestamp(),
-      });
+      if (db) {
+        try {
+          await addDoc(collection(db, 'authEvents'), {
+            uid: result.user.uid,
+            email: result.user.email,
+            eventType: 'login',
+            timestamp: serverTimestamp(),
+          });
+        } catch (err) {
+          console.warn("Could not log auth event to Firestore:", err);
+        }
+      }
 
       return { success: true, role };
     } catch (err) {
@@ -80,6 +107,10 @@ export const useAuth = () => {
   const signup = async (name, email, password) => {
     setError(null);
     setSuccessMsg(null);
+    if (!auth) {
+      setError("Registration is currently unavailable. Please verify Firebase configuration.");
+      return false;
+    }
     if (!name.trim() || !email.trim() || !password.trim()) {
       setError('Please fill in all details.');
       return false;
@@ -88,21 +119,28 @@ export const useAuth = () => {
       const result = await createUserWithEmailAndPassword(auth, email, password);
       // Set display name
       await updateProfile(result.user, { displayName: name });
+      
       // Save to Firestore
-      await setDoc(doc(db, 'users', result.user.uid), {
-        name,
-        email,
-        role: 'user',
-        createdAt: serverTimestamp()
-      });
-      // Log signup event
-      await addDoc(collection(db, 'authEvents'), {
-        uid: result.user.uid,
-        name,
-        email,
-        eventType: 'signup',
-        timestamp: serverTimestamp(),
-      });
+      if (db) {
+        try {
+          await setDoc(doc(db, 'users', result.user.uid), {
+            name,
+            email,
+            role: 'user',
+            createdAt: serverTimestamp()
+          });
+          // Log signup event
+          await addDoc(collection(db, 'authEvents'), {
+            uid: result.user.uid,
+            name,
+            email,
+            eventType: 'signup',
+            timestamp: serverTimestamp(),
+          });
+        } catch (err) {
+          console.warn("Could not save user profile to Firestore:", err);
+        }
+      }
       return true;
     } catch (err) {
       const msg = getFirebaseErrorMessage(err.code);
@@ -112,12 +150,17 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
+    if (!auth) return;
     await signOut(auth);
     setUser(null);
   };
 
   const sendPasswordReset = async (email) => {
     setError(null);
+    if (!auth) {
+      setError("Password reset is currently unavailable. Please verify Firebase configuration.");
+      return false;
+    }
     if (!email.trim() || !email.includes('@')) {
       setError('Please enter a valid email address.');
       return false;
