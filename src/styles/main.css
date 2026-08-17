@@ -48,6 +48,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* When modal is open — body scroll is locked via JS (document.body.style.overflow = 'hidden') */
+body.modal-open {
+  overflow: hidden !important;
+}
+
+
 /* Scrollbar Customization */
 ::-webkit-scrollbar {
   width: 8px;

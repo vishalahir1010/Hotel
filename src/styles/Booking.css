@@ -1,17 +1,26 @@
 /* Booking Modal / Sidebar Checkout Drawer */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.8);
-  backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 200;
   display: flex;
   justify-content: flex-end;
   animation: fadeInSimple 0.3s ease;
+  overflow: hidden;
 }
+
+/* Auth Modal image panel - hide on small screens */
+@media (max-width: 640px) {
+  .auth-image-panel {
+    display: none !important;
+  }
+}
+
 
 .booking-modal {
   width: 100%;
