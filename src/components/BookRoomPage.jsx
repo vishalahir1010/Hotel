@@ -150,21 +150,7 @@ export const BookRoomPage = ({ user }) => {
       }}
     >
       {/* Premium Header - Light Theme */}
-      <header 
-        style={{ 
-          padding: '16px 40px', 
-          borderBottom: '1px solid var(--gold-border)', 
-          backgroundColor: 'rgba(255, 255, 255, 0.97)',
-          backdropFilter: 'blur(16px)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          boxShadow: '0 2px 20px rgba(0,0,0,0.06)'
-        }}
-      >
+      <header className="booking-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <button 
             onClick={() => navigate('/suites')} 
@@ -180,7 +166,7 @@ export const BookRoomPage = ({ user }) => {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '15px', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
+        <div className="booking-steps-nav">
           <span className={step >= 1 ? 'gold-text' : ''} style={{ fontWeight: step === 1 ? 600 : 400 }}>1. Upgrade</span>
           <span style={{ color: 'var(--gold-border)' }}>&mdash;</span>
           <span className={step >= 2 ? 'gold-text' : ''} style={{ fontWeight: step === 2 ? 600 : 400 }}>2. Billing</span>
@@ -190,34 +176,9 @@ export const BookRoomPage = ({ user }) => {
       </header>
 
       {/* Main Split Layout */}
-      <div 
-        style={{ 
-          flexGrow: 1, 
-          display: 'grid', 
-          gridTemplateColumns: '45% 55%', 
-          maxWidth: '1440px', 
-          width: '100%',
-          margin: '0 auto',
-          position: 'relative'
-        }}
-        className="booking-split-container"
-      >
+      <div className="booking-split-container">
         {/* Left Side: Stay Summary and pricing details */}
-        <aside 
-          style={{ 
-            padding: '40px', 
-            borderRight: '1px solid var(--gold-border)', 
-            backgroundColor: 'var(--bg-card)', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '30px',
-            position: 'sticky',
-            top: '72px',
-            height: 'calc(100vh - 72px)',
-            overflowY: 'auto'
-          }}
-          className="booking-summary-sidebar"
-        >
+        <aside className="booking-summary-sidebar">
           {/* Room visual card */}
           <div style={{ borderRadius: 'var(--border-radius-lg)', overflow: 'hidden', border: '1px solid var(--gold-border)', position: 'relative', height: '220px' }}>
             <img src={room.images[0]} alt={room.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -317,7 +278,7 @@ export const BookRoomPage = ({ user }) => {
         </aside>
 
         {/* Right Side: Animated Checkout Wizard forms */}
-        <main style={{ padding: '40px', overflowY: 'auto' }}>
+        <main className="booking-main-content">
           {step === 1 && (
             <div className="animate-fade-in" style={{ textAlign: 'left' }}>
               <h2 className="section-title" style={{ fontSize: '1.8rem', marginBottom: '10px' }}>

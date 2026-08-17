@@ -91,53 +91,35 @@ export const Navbar = ({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: '70px',
-            left: 0,
-            width: '100vw',
-            height: 'calc(100vh - 70px)',
-            backgroundColor: 'var(--bg-dark)',
-            zIndex: 99,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '30px',
-            animation: 'fadeInSimple 0.3s ease'
-          }}
-        >
-          <span style={{ fontSize: '1.2rem', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.15em', cursor: 'pointer' }} onClick={() => handleNavClick('/')}>Home</span>
-          <span style={{ fontSize: '1.2rem', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.15em', cursor: 'pointer' }} onClick={() => handleNavClick('/about')}>About</span>
-          <span style={{ fontSize: '1.2rem', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.15em', cursor: 'pointer' }} onClick={() => handleNavClick('/suites')}>Suites</span>
-          <span style={{ fontSize: '1.2rem', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.15em', cursor: 'pointer' }} onClick={() => handleNavClick('/experiences')}>Experiences</span>
-          <span style={{ fontSize: '1.2rem', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.15em', cursor: 'pointer' }} onClick={() => handleNavClick('/faq')}>FAQ</span>
+        <div className="mobile-drawer">
+          <span className="mobile-drawer-link" onClick={() => handleNavClick('/')}>Home</span>
+          <span className="mobile-drawer-link" onClick={() => handleNavClick('/about')}>About</span>
+          <span className="mobile-drawer-link" onClick={() => handleNavClick('/suites')}>Suites</span>
+          <span className="mobile-drawer-link" onClick={() => handleNavClick('/experiences')}>Experiences</span>
+          <span className="mobile-drawer-link" onClick={() => handleNavClick('/faq')}>FAQ</span>
           
           {user ? (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-              <div style={{ color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 500 }}>
+            <div className="mobile-drawer-user-section">
+              <div className="mobile-drawer-welcome">
                 Welcome, <span className="gold-text">{user.name}</span>
               </div>
               <button 
-                className="outline-button" 
+                className="outline-button mobile-drawer-btn" 
                 onClick={() => { setMobileMenuOpen(false); onLogout(); }} 
-                style={{ padding: '10px 24px', fontSize: '0.9rem' }}
               >
                 Logout
               </button>
             </div>
           ) : (
             <button 
-              className="outline-button" 
+              className="outline-button mobile-drawer-btn" 
               onClick={() => { setMobileMenuOpen(false); onSignInClick(); }} 
-              style={{ padding: '10px 24px', fontSize: '0.9rem' }}
             >
               Sign In
             </button>
           )}
 
-          <a href="tel:+1800AURELIA" style={{ color: 'var(--gold-primary)', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <a href="tel:+1800AURELIA" className="mobile-drawer-phone">
             <PhoneCall size={16} />
             <span>+1 800 AURELIA</span>
           </a>
