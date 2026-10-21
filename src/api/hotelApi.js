@@ -139,6 +139,8 @@ export const ROOMS_DATA = [
   }
 ];
 
+export const MAX_ROOM_CAPACITY = Math.max(...ROOMS_DATA.map(room => room.capacity));
+
 export const ADDONS_LIST = [
   { id: 'champagne', name: 'Champagne on Arrival', price: 95, desc: 'A chilled bottle of Dom Pérignon waiting in your suite.', perNight: false },
   { id: 'spa', name: 'Unlimited Spa Access', price: 150, desc: 'Full therapeutic massage treatments and sensory wellness therapy.', perNight: true },

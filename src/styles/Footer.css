@@ -57,6 +57,10 @@
   text-align: left;
 }
 
+.footer .logo-text {
+  color: var(--text-primary);
+}
+
 .footer-grid {
   max-width: 1400px;
   margin: 0 auto 50px;
@@ -158,4 +162,3 @@
 .footer-legal-link:hover {
   color: var(--gold-primary);
 }
-

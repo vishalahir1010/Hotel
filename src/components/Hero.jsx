@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Users, Shield } from 'lucide-react';
+import { MAX_ROOM_CAPACITY } from '../api/hotelApi.js';
+import { addDaysToDate, getDateOffset } from '../utils/bookingDates.js';
 import '../styles/Hero.css';
 
 const HERO_IMAGES = [
@@ -64,9 +66,16 @@ export const Hero = ({
                 <Calendar className="search-icon" />
                 <input 
                   type="date" 
+                  required
                   value={checkIn}
-                  min={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setCheckIn(e.target.value)}
+                  min={getDateOffset(0)}
+                  onChange={(e) => {
+                    const nextCheckIn = e.target.value;
+                    setCheckIn(nextCheckIn);
+                    if (checkOut <= nextCheckIn) {
+                      setCheckOut(addDaysToDate(nextCheckIn, 1));
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -78,8 +87,9 @@ export const Hero = ({
                 <Calendar className="search-icon" />
                 <input 
                   type="date" 
+                  required
                   value={checkOut}
-                  min={checkIn || new Date().toISOString().split('T')[0]}
+                  min={checkIn ? addDaysToDate(checkIn, 1) : getDateOffset(1)}
                   onChange={(e) => setCheckOut(e.target.value)}
                 />
               </div>
@@ -94,11 +104,11 @@ export const Hero = ({
                   value={guests}
                   onChange={(e) => setGuests(parseInt(e.target.value))}
                 >
-                  <option value={1}>1 Guest</option>
-                  <option value={2}>2 Guests</option>
-                  <option value={3}>3 Guests</option>
-                  <option value={4}>4 Guests</option>
-                  <option value={5}>5+ Guests</option>
+                  {Array.from({ length: MAX_ROOM_CAPACITY }, (_, index) => index + 1).map((count) => (
+                    <option key={count} value={count}>
+                      {count} Guest{count === 1 ? '' : 's'}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

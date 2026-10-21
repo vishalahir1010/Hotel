@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ROOMS_DATA, ADDONS_LIST } from '../api/hotelApi.js';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { hotelApi, ROOMS_DATA, ADDONS_LIST } from '../api/hotelApi.js';
+import { addDaysToDate, getDateOffset, getStayNights } from '../utils/bookingDates.js';
 import { ArrowLeft, Sparkles, Check, CreditCard, Ticket, ChevronLeft, ArrowRight, CheckCircle2, Calendar, Users, Square, Compass } from 'lucide-react';
 
 export const BookRoomPage = ({ user }) => {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Find the selected room
   const room = ROOMS_DATA.find((r) => r.id === roomId);
@@ -18,22 +20,17 @@ export const BookRoomPage = ({ user }) => {
   }, [room, navigate]);
 
   // Hook-like local state for booking metrics
-  const [checkIn, setCheckIn] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().split('T')[0];
+  const [checkIn, setCheckIn] = useState(() => location.state?.checkIn || getDateOffset(1));
+  const [checkOut, setCheckOut] = useState(() => location.state?.checkOut || getDateOffset(4));
+  const [guests, setGuests] = useState(() => {
+    const requestedGuests = Number(location.state?.guests);
+    return Number.isInteger(requestedGuests) && requestedGuests > 0 ? requestedGuests : 2;
   });
-  
-  const [checkOut, setCheckOut] = useState(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 4);
-    return d.toISOString().split('T')[0];
-  });
-  
-  const [guests, setGuests] = useState(2);
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [step, setStep] = useState(1);
   const [bookingRef, setBookingRef] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [bookingError, setBookingError] = useState('');
 
   const [form, setForm] = useState({
     name: '',
@@ -57,12 +54,9 @@ export const BookRoomPage = ({ user }) => {
 
   if (!room) return null;
 
-  // Nights calculation
-  const d1 = new Date(checkIn);
-  const d2 = new Date(checkOut);
-  const timeDiff = Math.abs(d2.getTime() - d1.getTime());
-  const calculatedNights = Math.ceil(timeDiff / (1000 * 3600 * 24));
-  const nights = isNaN(calculatedNights) || calculatedNights <= 0 ? 1 : calculatedNights;
+  const nights = getStayNights(checkIn, checkOut);
+  const validStay = nights > 0 && checkIn >= getDateOffset(0);
+  const validGuestCount = Number.isInteger(guests) && guests > 0 && guests <= room.capacity;
 
   // Recalculate invoice metrics
   const roomTotal = room.price * nights;
@@ -104,39 +98,76 @@ export const BookRoomPage = ({ user }) => {
     setForm(prev => ({ ...prev, cardCvv: value }));
   };
 
+  const isExpiryValid = () => {
+    const match = /^(\d{2})\/(\d{2})$/.exec(form.cardExpiry);
+    if (!match) return false;
+
+    const month = Number(match[1]);
+    const year = 2000 + Number(match[2]);
+    if (month < 1 || month > 12) return false;
+
+    const expiry = new Date(year, month, 0, 23, 59, 59);
+    return expiry >= new Date();
+  };
+
   const isFormValid = () => {
     return (
+      validStay &&
+      validGuestCount &&
       form.name.trim() !== '' &&
-      form.email.trim() !== '' &&
-      form.phone.trim() !== '' &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()) &&
+      form.phone.replace(/\D/g, '').length >= 7 &&
       form.cardNumber.replace(/\s/g, '').length === 16 &&
-      form.cardExpiry.length === 5 &&
+      isExpiryValid() &&
       form.cardCvv.length >= 3 &&
       form.cardName.trim() !== ''
     );
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (step === 2) {
-      const ref = 'AUR-' + Math.floor(100000 + Math.random() * 900000);
-      setBookingRef(ref);
-      setStep(3);
-    } else {
-      setStep(step + 1);
+      if (!isFormValid() || submitting) return;
+
+      setSubmitting(true);
+      setBookingError('');
+      try {
+        const result = await hotelApi.createBooking({
+          room_id: room.id,
+          room_name: room.name,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests,
+          addons: selectedAddons,
+          customer: {
+            name: form.name.trim(),
+            email: form.email.trim(),
+            phone: form.phone.trim(),
+            requests: form.requests.trim()
+          },
+          total_price: totalPrice
+        });
+
+        if (!result.success || !result.booking_ref) {
+          throw new Error(result.message || 'We could not confirm this reservation. Please try again.');
+        }
+
+        setBookingRef(result.booking_ref);
+        setStep(3);
+      } catch (error) {
+        setBookingError(error instanceof Error ? error.message : 'We could not confirm this reservation. Please try again.');
+      } finally {
+        setSubmitting(false);
+      }
+      return;
     }
+
+    if (step === 1 && (!validStay || !validGuestCount)) return;
+    setBookingError('');
+    setStep(step + 1);
   };
 
   const handlePrevStep = () => {
     if (step > 1) setStep(step - 1);
-  };
-
-  const renderQRCode = () => {
-    const dots = [];
-    for (let i = 0; i < 36; i++) {
-      const isBlack = (i % 3 === 0 && i % 2 === 0) || i === 0 || i === 5 || i === 30 || i === 35;
-      dots.push(<div key={i} className={`qr-dot ${isBlack ? 'black' : ''}`} />);
-    }
-    return <div className="qr-placeholder">{dots}</div>;
   };
 
   return (
@@ -198,8 +229,14 @@ export const BookRoomPage = ({ user }) => {
                   type="date" 
                   value={checkIn}
                   disabled={step > 1}
-                  min={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setCheckIn(e.target.value)}
+                  min={getDateOffset(0)}
+                  onChange={(e) => {
+                    const nextCheckIn = e.target.value;
+                    setCheckIn(nextCheckIn);
+                    if (nextCheckIn && checkOut <= nextCheckIn) {
+                      setCheckOut(addDaysToDate(nextCheckIn, 1));
+                    }
+                  }}
                   style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none', width: '100%' }}
                 />
               </div>
@@ -212,7 +249,7 @@ export const BookRoomPage = ({ user }) => {
                   type="date" 
                   value={checkOut}
                   disabled={step > 1}
-                  min={checkIn}
+                  min={checkIn ? addDaysToDate(checkIn, 1) : getDateOffset(1)}
                   onChange={(e) => setCheckOut(e.target.value)}
                   style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.8rem', outline: 'none', width: '100%' }}
                 />
@@ -231,11 +268,11 @@ export const BookRoomPage = ({ user }) => {
                   onChange={(e) => setGuests(parseInt(e.target.value))}
                   style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.85rem', outline: 'none', cursor: 'pointer' }}
                 >
-                  <option value={1} style={{ backgroundColor: 'var(--bg-surface)' }}>1 Guest</option>
-                  <option value={2} style={{ backgroundColor: 'var(--bg-surface)' }}>2 Guests</option>
-                  <option value={3} style={{ backgroundColor: 'var(--bg-surface)' }}>3 Guests</option>
-                  <option value={4} style={{ backgroundColor: 'var(--bg-surface)' }}>4 Guests</option>
-                  <option value={5} style={{ backgroundColor: 'var(--bg-surface)' }}>5+ Guests</option>
+                  {Array.from({ length: Math.max(room.capacity, guests) }, (_, index) => index + 1).map((count) => (
+                    <option key={count} value={count} style={{ backgroundColor: 'var(--bg-surface)' }}>
+                      {count} Guest{count === 1 ? '' : 's'}
+                    </option>
+                  ))}
                 </select>
               </span>
             </div>
@@ -244,6 +281,17 @@ export const BookRoomPage = ({ user }) => {
               <span>{room.size} SQ FT / {room.view}</span>
             </div>
           </div>
+
+          {!validStay && (
+            <p className="booking-inline-error" role="alert">
+              Choose a check-out date after check-in and a date that is not in the past.
+            </p>
+          )}
+          {!validGuestCount && (
+            <p className="booking-inline-error" role="alert">
+              This suite accommodates up to {room.capacity} guests. Change the guest count to continue.
+            </p>
+          )}
 
           {/* Pricing Breakdown summary */}
           <div className="summary-card" style={{ margin: 0, border: '1px solid var(--gold-border)' }}>
@@ -292,10 +340,12 @@ export const BookRoomPage = ({ user }) => {
                 {ADDONS_LIST.map((addon) => {
                   const isSelected = selectedAddons.includes(addon.id);
                   return (
-                    <div 
+                    <button
+                      type="button"
                       key={addon.id}
                       className={`addon-card ${isSelected ? 'selected' : ''}`}
                       onClick={() => toggleAddon(addon.id)}
+                      aria-pressed={isSelected}
                     >
                       <div className="addon-info">
                         <div className="addon-icon-box">
@@ -317,14 +367,19 @@ export const BookRoomPage = ({ user }) => {
                           {isSelected && <Check className="addon-select-icon" />}
                         </div>
                       </div>
-                    </div>
+                      </button>
                   );
                 })}
               </div>
 
               {/* Step 1 Actions */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '40px' }}>
-                <button className="gold-button" onClick={handleNextStep} style={{ padding: '14px 35px' }}>
+                <button
+                  className="gold-button"
+                  onClick={() => void handleNextStep()}
+                  disabled={!validStay || !validGuestCount}
+                  style={{ padding: '14px 35px', opacity: validStay && validGuestCount ? 1 : 0.5 }}
+                >
                   <span>Proceed to Billing</span>
                   <ArrowRight size={14} />
                 </button>
@@ -338,7 +393,7 @@ export const BookRoomPage = ({ user }) => {
                 Billing & <span className="gold-text">Security</span>
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '30px' }}>
-                Secure your suite. All payments are encrypted using bank-grade protocol security.
+                Demo checkout only: no payment is processed. Use test details only; payment details are not sent with the reservation.
               </p>
 
               {/* Credit Card visual */}
@@ -411,7 +466,9 @@ export const BookRoomPage = ({ user }) => {
                   <input 
                     type="text" 
                     required 
-                    placeholder="4111 2222 3333 4444"
+                    placeholder="4242 4242 4242 4242"
+                    inputMode="numeric"
+                    autoComplete="off"
                     value={form.cardNumber}
                     onChange={handleCardNumberChange}
                   />
@@ -422,6 +479,8 @@ export const BookRoomPage = ({ user }) => {
                     type="text" 
                     required 
                     placeholder="MM/YY"
+                    inputMode="numeric"
+                    autoComplete="off"
                     value={form.cardExpiry}
                     onChange={handleExpiryChange}
                   />
@@ -432,6 +491,8 @@ export const BookRoomPage = ({ user }) => {
                     type="password" 
                     required 
                     placeholder="•••"
+                    inputMode="numeric"
+                    autoComplete="off"
                     value={form.cardCvv}
                     onChange={handleCvvChange}
                   />
@@ -455,14 +516,15 @@ export const BookRoomPage = ({ user }) => {
                 </button>
                 <button 
                   className="gold-button" 
-                  onClick={handleNextStep}
-                  disabled={!isFormValid()}
-                  style={{ opacity: isFormValid() ? 1 : 0.4, cursor: isFormValid() ? 'pointer' : 'not-allowed' }}
+                  onClick={() => void handleNextStep()}
+                  disabled={!isFormValid() || submitting}
+                  style={{ opacity: isFormValid() && !submitting ? 1 : 0.5, cursor: isFormValid() && !submitting ? 'pointer' : 'not-allowed' }}
                 >
                   <CreditCard size={14} />
-                  <span>Confirm Suite Reservation</span>
+                  <span>{submitting ? 'Confirming Reservation...' : 'Confirm Suite Reservation'}</span>
                 </button>
               </div>
+              {bookingError && <p className="booking-inline-error" role="alert">{bookingError}</p>}
             </div>
           )}
 
@@ -472,11 +534,11 @@ export const BookRoomPage = ({ user }) => {
                 <CheckCircle2 size={56} style={{ color: 'var(--gold-primary)' }} className="animate-float" />
                 <h2 style={{ fontSize: '1.8rem', fontWeight: 300 }}>Sanctuary Secured</h2>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                  A confirmation email has been dispatched. Present your VIP Boarding Pass at check-in.
+                  Your reservation is confirmed in this demo. No payment was processed and no email was sent.
                 </p>
               </div>
 
-              {/* Ticket Boarding Pass */}
+              {/* Demo booking receipt */}
               <div className="ticket">
                 <div className="ticket-header">
                   <div className="ticket-brand">
@@ -517,11 +579,9 @@ export const BookRoomPage = ({ user }) => {
                     </div>
                   </div>
 
-                  <div className="ticket-qr-section">
-                    <div className="qr-code-box">
-                      {renderQRCode()}
-                    </div>
-                    <span className="qr-label">VIP Boarding Pass</span>
+                  <div className="ticket-note">
+                    <span className="ticket-ref-val">Demo confirmation</span>
+                    <span className="ticket-note-label">Not a valid travel document</span>
                   </div>
                 </div>
               </div>

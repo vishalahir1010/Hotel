@@ -37,6 +37,8 @@ function App() {
     handleSearchSubmit,
     rooms,
     loadingRooms,
+    roomsError,
+    retryRooms,
     selectedRoom,
     setForm
   } = booking;
@@ -92,12 +94,13 @@ function App() {
 
   // Floating Navbar CTA click selection
   const handleNavBookClick = () => {
-    navigate('/book/azure-ocean');
+    navigate('/book/azure-ocean', { state: activeFilters });
   };
 
   const handleSearch = () => {
-    handleSearchSubmit();
-    navigate('/suites');
+    if (handleSearchSubmit()) {
+      navigate('/suites', { state: { checkIn, checkOut, guests, roomType } });
+    }
   };
 
   // Home Page Component
@@ -167,7 +170,9 @@ function App() {
                 <Rooms 
                   rooms={rooms}
                   loadingRooms={loadingRooms}
-                  activeFilters={activeFilters} 
+                  roomsError={roomsError}
+                  onRetry={retryRooms}
+                  activeFilters={activeFilters}
                 />
               } />
 

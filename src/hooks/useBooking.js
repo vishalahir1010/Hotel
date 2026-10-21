@@ -1,29 +1,18 @@
 import { useState, useEffect } from "react";
 import { hotelApi } from "../api/hotelApi.js";
-
-const getTomorrowString = () => {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().split("T")[0];
-};
-
-const getThreeDaysLaterString = () => {
-  const d = new Date();
-  d.setDate(d.getDate() + 4);
-  return d.toISOString().split("T")[0];
-};
+import { getDateOffset, getStayNights } from "../utils/bookingDates.js";
 
 export const useBooking = () => {
   // Search parameters
-  const [checkIn, setCheckIn] = useState(getTomorrowString());
-  const [checkOut, setCheckOut] = useState(getThreeDaysLaterString());
+  const [checkIn, setCheckIn] = useState(() => getDateOffset(1));
+  const [checkOut, setCheckOut] = useState(() => getDateOffset(4));
   const [guests, setGuests] = useState(2);
   const [roomType, setRoomType] = useState("all");
 
   // Confirmed search parameters (after search click)
   const [activeFilters, setActiveFilters] = useState({
-    checkIn: getTomorrowString(),
-    checkOut: getThreeDaysLaterString(),
+    checkIn: getDateOffset(1),
+    checkOut: getDateOffset(4),
     guests: 2,
     roomType: "all",
   });
@@ -31,6 +20,8 @@ export const useBooking = () => {
   // API database states
   const [rooms, setRooms] = useState([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
+  const [roomsError, setRoomsError] = useState('');
+  const [roomRequestKey, setRoomRequestKey] = useState(0);
   const [addons, setAddons] = useState([]);
   const [loadingAddons, setLoadingAddons] = useState(true);
 
@@ -76,25 +67,37 @@ export const useBooking = () => {
 
   // Fetch rooms on any active filter changes
   useEffect(() => {
+    let isCurrentRequest = true;
     const loadRooms = async () => {
       setLoadingRooms(true);
+      setRoomsError('');
       try {
         const data = await hotelApi.getRooms({
           guests: activeFilters.guests,
           roomType: activeFilters.roomType,
         });
-        setRooms(data);
+        if (isCurrentRequest) setRooms(data);
       } catch (err) {
         console.error("Failed to load rooms", err);
+        if (isCurrentRequest) {
+          setRoomsError(err instanceof Error ? err.message : 'Unable to load suites. Please try again.');
+        }
       } finally {
-        setLoadingRooms(false);
+        if (isCurrentRequest) setLoadingRooms(false);
       }
     };
     loadRooms();
-  }, [activeFilters]);
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, [activeFilters, roomRequestKey]);
+
+  const retryRooms = () => setRoomRequestKey((key) => key + 1);
 
   // Apply filters when clicking search
   const handleSearchSubmit = () => {
+    if (getStayNights(checkIn, checkOut) < 1) return false;
+
     setActiveFilters({
       checkIn,
       checkOut,
@@ -106,15 +109,12 @@ export const useBooking = () => {
     if (roomsSection) {
       roomsSection.scrollIntoView({ behavior: "smooth" });
     }
+    return true;
   };
 
   // Night calculation
   const getNights = () => {
-    const d1 = new Date(activeFilters.checkIn);
-    const d2 = new Date(activeFilters.checkOut);
-    const timeDiff = Math.abs(d2.getTime() - d1.getTime());
-    const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    return isNaN(diffDays) || diffDays <= 0 ? 1 : diffDays;
+    return getStayNights(activeFilters.checkIn, activeFilters.checkOut);
   };
 
   const nights = getNights();
@@ -217,6 +217,8 @@ export const useBooking = () => {
     // API states
     rooms,
     loadingRooms,
+    roomsError,
+    retryRooms,
     addons,
     loadingAddons,
 

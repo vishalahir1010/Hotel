@@ -70,7 +70,7 @@ export const Footer = () => {
           
           {subscribed ? (
             <div style={{ color: 'var(--gold-primary)', fontSize: '0.9rem', fontWeight: 500, padding: '10px 0' }}>
-              Welcome to the elite circle. Please check your inbox.
+              Thanks for your interest. Newsletter signup is a demo and has not been submitted.
             </div>
           ) : (
             <form onSubmit={handleSubscribe} className="newsletter-form">

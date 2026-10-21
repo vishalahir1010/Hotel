@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Square, ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react';
 
-const RoomCard = ({ room }) => {
+const RoomCard = ({ room, activeFilters }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const navigate = useNavigate();
 
@@ -30,10 +30,10 @@ const RoomCard = ({ room }) => {
         
         {room.images.length > 1 && (
           <>
-            <button className="room-nav-btn prev" onClick={handlePrevImage}>
+            <button className="room-nav-btn prev" onClick={handlePrevImage} aria-label={`Previous image of ${room.name}`}>
               <ChevronLeft size={18} />
             </button>
-            <button className="room-nav-btn next" onClick={handleNextImage}>
+            <button className="room-nav-btn next" onClick={handleNextImage} aria-label={`Next image of ${room.name}`}>
               <ChevronRight size={18} />
             </button>
           </>
@@ -65,8 +65,8 @@ const RoomCard = ({ room }) => {
               style={{
                 fontSize: '0.7rem',
                 color: 'var(--text-muted)',
-                backgroundColor: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.05)',
+                backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--gold-border)',
                 padding: '4px 10px',
                 borderRadius: '4px'
               }}
@@ -85,7 +85,7 @@ const RoomCard = ({ room }) => {
               <span> / night</span>
             </span>
           </div>
-          <button className="gold-button" onClick={() => navigate('/book/' + room.id)}>
+          <button className="gold-button" onClick={() => navigate('/book/' + room.id, { state: activeFilters })}>
             Reserve Suite
           </button>
         </div>
@@ -100,29 +100,33 @@ const SkeletonCard = () => (
     style={{ 
       height: '520px', 
       animation: 'shimmer 2s infinite linear',
-      background: 'linear-gradient(90deg, #18181b 25%, #242427 50%, #18181b 75%)',
+      background: 'linear-gradient(90deg, var(--bg-card) 25%, var(--bg-surface) 50%, var(--bg-card) 75%)',
       backgroundSize: '200% 100%',
-      border: '1px solid rgba(255,255,255,0.02)'
+      border: '1px solid var(--gold-border)'
     }}
   >
     <div style={{ height: '280px', backgroundColor: 'rgba(255,255,255,0.01)' }} />
     <div style={{ padding: '30px' }}>
-      <div style={{ width: '40%', height: '12px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '4px', marginBottom: '15px' }} />
-      <div style={{ width: '80%', height: '24px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '4px', marginBottom: '15px' }} />
-      <div style={{ width: '95%', height: '14px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '4px', marginBottom: '8px' }} />
-      <div style={{ width: '70%', height: '14px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '4px', marginBottom: '30px' }} />
+      <div style={{ width: '40%', height: '12px', backgroundColor: 'var(--gold-light)', borderRadius: '4px', marginBottom: '15px' }} />
+      <div style={{ width: '80%', height: '24px', backgroundColor: 'var(--gold-light)', borderRadius: '4px', marginBottom: '15px' }} />
+      <div style={{ width: '95%', height: '14px', backgroundColor: 'var(--gold-light)', borderRadius: '4px', marginBottom: '8px' }} />
+      <div style={{ width: '70%', height: '14px', backgroundColor: 'var(--gold-light)', borderRadius: '4px', marginBottom: '30px' }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ width: '100px', height: '32px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '4px' }} />
-        <div style={{ width: '120px', height: '40px', backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: '4px' }} />
+        <div style={{ width: '100px', height: '32px', backgroundColor: 'var(--gold-light)', borderRadius: '4px' }} />
+        <div style={{ width: '120px', height: '40px', backgroundColor: 'var(--gold-light)', borderRadius: '4px' }} />
       </div>
     </div>
   </div>
 );
 
-export const Rooms = ({ rooms, loadingRooms }) => {
-  const [filterType, setFilterType] = useState('all');
+export const Rooms = ({ rooms, loadingRooms, roomsError, onRetry, activeFilters }) => {
+  const [filterType, setFilterType] = useState(activeFilters?.roomType || 'all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('popularity');
+
+  useEffect(() => {
+    setFilterType(activeFilters?.roomType || 'all');
+  }, [activeFilters?.roomType]);
 
   // Client-side category & query sub-filtering
   const filteredRooms = rooms.filter((room) => {
@@ -275,12 +279,19 @@ export const Rooms = ({ rooms, loadingRooms }) => {
           <SkeletonCard />
           <SkeletonCard />
         </div>
+      ) : roomsError ? (
+        <div className="glass-panel rooms-error" role="alert">
+          <h3>Suites Could Not Be Loaded</h3>
+          <p>{roomsError}</p>
+          <button className="gold-button" onClick={onRetry}>Try Again</button>
+        </div>
       ) : sortedRooms.length > 0 ? (
         <div className="rooms-grid">
           {sortedRooms.map((room) => (
             <RoomCard 
               key={room.id} 
               room={room} 
+              activeFilters={activeFilters}
             />
           ))}
         </div>

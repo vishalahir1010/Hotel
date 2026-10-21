@@ -77,6 +77,12 @@
   color: #FFFFFF;
 }
 
+.hero-title .gold-text {
+  background: none;
+  color: var(--gold-light);
+  -webkit-text-fill-color: currentColor;
+}
+
 .hero-desc {
   font-size: clamp(0.9rem, 2.5vw, 1.1rem);
   color: rgba(255, 255, 255, 0.82);
