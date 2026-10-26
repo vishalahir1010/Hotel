@@ -1,0 +1,262 @@
+.account-page {
+  width: min(1100px, calc(100% - 40px));
+  min-height: 65vh;
+  margin: 0 auto;
+  padding: 150px 0 80px;
+}
+
+.account-heading {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.account-heading p,
+.account-muted,
+.account-demo-note {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.booking-lookup,
+.account-profile,
+.account-empty {
+  max-width: 760px;
+  margin: 0 auto 28px;
+  padding: 24px;
+  border-radius: var(--border-radius-md);
+}
+
+.booking-lookup > label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.booking-lookup > div {
+  display: flex;
+  gap: 12px;
+}
+
+.booking-lookup input,
+.account-review-form textarea,
+.account-review-controls select {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--gold-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.booking-lookup input {
+  flex: 1;
+}
+
+.account-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.account-profile > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.account-profile > div span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.account-profile-label {
+  color: var(--gold-primary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.account-message {
+  margin: 16px auto;
+  text-align: center;
+}
+
+.account-message.error {
+  color: #a12b2b;
+}
+
+.account-message.success {
+  color: #176b4d;
+}
+
+.account-empty {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.account-empty h2 {
+  margin: 10px 0;
+  color: var(--text-primary);
+  font-size: 1.4rem;
+}
+
+.account-booking-list {
+  display: grid;
+  gap: 18px;
+}
+
+.account-booking-card {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  overflow: hidden;
+  border-radius: var(--border-radius-md);
+}
+
+.account-booking-card > img {
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  object-fit: cover;
+}
+
+.account-booking-content {
+  padding: 22px;
+}
+
+.account-booking-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.account-booking-topline h2 {
+  margin-top: 4px;
+  font-size: 1.45rem;
+}
+
+.account-status {
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.account-status.cancelled {
+  background: #fde8e8;
+  color: #992c2c;
+}
+
+.account-booking-dates {
+  margin-top: 10px;
+  color: var(--text-secondary);
+}
+
+.account-booking-payment {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.account-cancel {
+  margin-top: 14px;
+  padding: 9px 13px;
+  font-size: 0.7rem;
+}
+
+.account-review-form {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gold-border);
+}
+
+.account-review-form > label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.account-review-controls {
+  display: grid;
+  grid-template-columns: auto 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.account-review-controls select {
+  padding: 10px;
+}
+
+.account-review-form textarea {
+  min-height: 42px;
+  resize: vertical;
+}
+
+.account-review-controls .gold-button {
+  padding: 11px 14px;
+  font-size: 0.68rem;
+}
+
+.account-demo-note {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.76rem;
+}
+
+@media (max-width: 700px) {
+  .account-page {
+    width: min(100% - 28px, 560px);
+    padding-top: 112px;
+  }
+
+  .account-booking-card {
+    grid-template-columns: 1fr;
+  }
+
+  .account-booking-card > img {
+    height: 190px;
+    min-height: 0;
+  }
+
+  .account-review-controls {
+    grid-template-columns: auto 20px minmax(0, 1fr);
+  }
+
+  .account-review-controls .gold-button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .booking-lookup > div,
+  .account-profile {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .account-profile-label {
+    display: none;
+  }
+
+  .payment-options {
+    grid-template-columns: 1fr;
+  }
+}

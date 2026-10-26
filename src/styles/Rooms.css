@@ -18,6 +18,61 @@
   flex-wrap: wrap;
 }
 
+.availability-search {
+  max-width: 1200px;
+  margin: 0 auto 28px;
+  padding: 18px;
+  border-radius: var(--border-radius-md);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(140px, 1fr)) auto;
+  gap: 14px;
+  align-items: end;
+}
+
+.availability-summary {
+  margin: -25px auto 28px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.availability-summary strong {
+  color: var(--text-primary);
+}
+
+.availability-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.availability-field label {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.availability-field input,
+.availability-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border: 1px solid var(--gold-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.availability-error {
+  grid-column: 1 / -1;
+  color: #a12b2b;
+  font-size: 0.85rem;
+}
+
 .filter-btn {
   background: transparent;
   border: 1px solid var(--gold-border);
@@ -142,6 +197,34 @@
 .room-nav-btn.prev { left: 15px; }
 .room-nav-btn.next { right: 15px; }
 
+.room-save-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  background: rgba(15, 36, 50, 0.72);
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.room-save-btn:hover,
+.room-save-btn.saved {
+  color: #d34c63;
+  background: #FFFFFF;
+}
+
+.room-save-btn:focus-visible {
+  outline: 2px solid #FFFFFF;
+  outline-offset: 3px;
+}
+
 .room-tag {
   position: absolute;
   top: 20px;
@@ -180,6 +263,34 @@
   width: 14px;
   height: 14px;
   color: var(--gold-primary);
+}
+
+.room-meta-item.room-rating {
+  color: var(--gold-primary);
+}
+
+@media (max-width: 900px) {
+  .availability-search {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .availability-search > button {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .availability-search {
+    grid-template-columns: 1fr;
+  }
+
+  .availability-search > button {
+    justify-content: center;
+  }
+
+  .availability-summary {
+    margin-top: -15px;
+  }
 }
 
 .room-card-title {

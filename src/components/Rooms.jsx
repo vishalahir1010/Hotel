@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Square, ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react';
+import { Users, Square, ChevronLeft, ChevronRight, Search, SlidersHorizontal, Heart, Star } from 'lucide-react';
+import { hotelApi } from '../api/hotelApi.js';
+import { addDaysToDate, getDateOffset } from '../utils/bookingDates.js';
 
-const RoomCard = ({ room, activeFilters }) => {
+const RoomCard = ({ room, activeFilters, saved, onToggleSaved, reviews }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const navigate = useNavigate();
 
@@ -40,6 +42,15 @@ const RoomCard = ({ room, activeFilters }) => {
         )}
         
         <span className="room-tag">{room.view}</span>
+        <button
+          type="button"
+          className={`room-save-btn ${saved ? 'saved' : ''}`}
+          aria-label={saved ? `Remove ${room.name} from saved suites` : `Save ${room.name}`}
+          aria-pressed={saved}
+          onClick={() => onToggleSaved(room.id)}
+        >
+          <Heart size={18} fill={saved ? 'currentColor' : 'none'} />
+        </button>
       </div>
 
       {/* Room Details */}
@@ -52,6 +63,15 @@ const RoomCard = ({ room, activeFilters }) => {
           <div className="room-meta-item">
             <Users className="room-meta-icon" />
             <span>Up to {room.capacity} Guests</span>
+          </div>
+          <div className="room-meta-item room-rating">
+            <Star className="room-meta-icon" fill="currentColor" />
+            <span>
+              {reviews.length
+                ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+                : room.rating.toFixed(1)}
+              {reviews.length ? ` · ${reviews.length} review${reviews.length === 1 ? '' : 's'}` : ''}
+            </span>
           </div>
         </div>
 
@@ -119,17 +139,59 @@ const SkeletonCard = () => (
   </div>
 );
 
-export const Rooms = ({ rooms, loadingRooms, roomsError, onRetry, activeFilters }) => {
-  const [filterType, setFilterType] = useState(activeFilters?.roomType || 'all');
+export const Rooms = ({
+  rooms,
+  loadingRooms,
+  roomsError,
+  onRetry,
+  activeFilters,
+  savedRoomIds = [],
+  onToggleSaved,
+  wishlistOnly = false,
+  onUpdateAvailability
+}) => {
+  const [filterType, setFilterType] = useState(wishlistOnly ? 'all' : (activeFilters?.roomType || 'all'));
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('popularity');
+  const [dateDraft, setDateDraft] = useState({
+    checkIn: activeFilters?.checkIn || getDateOffset(1),
+    checkOut: activeFilters?.checkOut || getDateOffset(4),
+    guests: activeFilters?.guests || 2
+  });
+  const [availabilityError, setAvailabilityError] = useState('');
+  const [reviews, setReviews] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setFilterType(activeFilters?.roomType || 'all');
-  }, [activeFilters?.roomType]);
+    setDateDraft({
+      checkIn: activeFilters?.checkIn || getDateOffset(1),
+      checkOut: activeFilters?.checkOut || getDateOffset(4),
+      guests: activeFilters?.guests || 2
+    });
+  }, [activeFilters?.checkIn, activeFilters?.checkOut, activeFilters?.guests]);
+
+  useEffect(() => {
+    if (!wishlistOnly) setFilterType(activeFilters?.roomType || 'all');
+  }, [activeFilters?.roomType, wishlistOnly]);
+
+  useEffect(() => {
+    let isCurrentRequest = true;
+    hotelApi.getReviews()
+      .then(data => {
+        if (isCurrentRequest) setReviews(data);
+      })
+      .catch(error => console.error('Failed to load suite reviews.', error));
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, []);
+
+  const visibleRooms = wishlistOnly
+    ? rooms.filter(room => savedRoomIds.includes(room.id))
+    : rooms;
 
   // Client-side category & query sub-filtering
-  const filteredRooms = rooms.filter((room) => {
+  const filteredRooms = visibleRooms.filter((room) => {
     const matchesCategory = filterType === 'all' || room.type === filterType;
     const matchesQuery = room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          room.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -149,15 +211,83 @@ export const Rooms = ({ rooms, loadingRooms, roomsError, onRetry, activeFilters 
     return 0;
   });
 
+  const applyAvailability = (event) => {
+    event.preventDefault();
+    if (
+      !dateDraft.checkIn ||
+      !dateDraft.checkOut ||
+      dateDraft.checkIn < getDateOffset(0) ||
+      dateDraft.checkOut <= dateDraft.checkIn
+    ) {
+      setAvailabilityError('Choose a future check-in date and a later check-out date.');
+      return;
+    }
+    setAvailabilityError('');
+    onUpdateAvailability?.({ ...dateDraft, roomType: activeFilters?.roomType || 'all' });
+  };
+
   return (
     <section id="rooms" className="rooms-section">
       <div className="rooms-header animate-fade-in">
-        <span className="section-tag">Elite Accommodation</span>
-        <h2 className="section-title">Rooms & <span className="gold-text">Suites</span></h2>
+        <span className="section-tag">{wishlistOnly ? 'Your Shortlist' : 'Elite Accommodation'}</span>
+        <h2 className="section-title">{wishlistOnly ? <>Saved <span className="gold-text">Suites</span></> : <>Rooms & <span className="gold-text">Suites</span></>}</h2>
         <p style={{ color: 'var(--text-muted)', maxWidth: '600px', margin: '15px auto 0' }}>
-          Explore our sanctuary. Each villa and penthouse features detailed high-end craftsmanship, bespoke Italian fittings, and dynamic ocean visuals.
+          {wishlistOnly
+            ? 'Your favorite stays, saved for whenever you are ready to plan your next escape.'
+            : 'Explore our sanctuary. Each villa and penthouse features detailed high-end craftsmanship, bespoke Italian fittings, and dynamic ocean visuals.'}
         </p>
       </div>
+      {activeFilters?.checkIn && activeFilters?.checkOut && !wishlistOnly && (
+        <p className="availability-summary">
+          Available suites for <strong>{activeFilters.checkIn}</strong> to <strong>{activeFilters.checkOut}</strong> · {activeFilters.guests} guest{activeFilters.guests === 1 ? '' : 's'}
+        </p>
+      )}
+
+      {!wishlistOnly && (
+        <form className="availability-search glass-panel" onSubmit={applyAvailability}>
+          <div className="availability-field">
+            <label htmlFor="suite-check-in">Check in</label>
+            <input
+              id="suite-check-in"
+              type="date"
+              min={getDateOffset(0)}
+              value={dateDraft.checkIn}
+              onChange={(event) => setDateDraft(current => {
+                const checkIn = event.target.value;
+                return {
+                  ...current,
+                  checkIn,
+                  checkOut: current.checkOut <= checkIn ? addDaysToDate(checkIn, 1) : current.checkOut
+                };
+              })}
+            />
+          </div>
+          <div className="availability-field">
+            <label htmlFor="suite-check-out">Check out</label>
+            <input
+              id="suite-check-out"
+              type="date"
+              min={dateDraft.checkIn ? addDaysToDate(dateDraft.checkIn, 1) : getDateOffset(1)}
+              value={dateDraft.checkOut}
+              onChange={(event) => setDateDraft(current => ({ ...current, checkOut: event.target.value }))}
+            />
+          </div>
+          <div className="availability-field">
+            <label htmlFor="suite-guests">Guests</label>
+            <select
+              id="suite-guests"
+              value={dateDraft.guests}
+              onChange={(event) => setDateDraft(current => ({ ...current, guests: Number(event.target.value) }))}
+            >
+              {Array.from({ length: 8 }, (_, index) => index + 1).map(count => (
+                <option value={count} key={count}>{count} guest{count === 1 ? '' : 's'}</option>
+              ))}
+            </select>
+          </div>
+          <button className="gold-button" type="submit">Check availability</button>
+          {availabilityError && <p className="availability-error" role="alert">{availabilityError}</p>}
+        </form>
+      )}
 
       {/* Filter Categories */}
       <div className="room-filters animate-fade-in">
@@ -292,6 +422,9 @@ export const Rooms = ({ rooms, loadingRooms, roomsError, onRetry, activeFilters 
               key={room.id} 
               room={room} 
               activeFilters={activeFilters}
+              saved={savedRoomIds.includes(room.id)}
+              onToggleSaved={onToggleSaved}
+              reviews={reviews.filter(review => review.room_id === room.id)}
             />
           ))}
         </div>
@@ -306,18 +439,25 @@ export const Rooms = ({ rooms, loadingRooms, roomsError, onRetry, activeFilters 
             textAlign: 'center'
           }}
         >
-          <h3 style={{ marginBottom: '15px', color: 'var(--gold-primary)' }}>No Suites Found</h3>
+          <h3 style={{ marginBottom: '15px', color: 'var(--gold-primary)' }}>
+            {wishlistOnly && savedRoomIds.length === 0 ? 'No Saved Suites Yet' : 'No Suites Found'}
+          </h3>
           <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>
-            We could not find any available suites matching "{searchQuery}" under the selected category filters.
+            {wishlistOnly
+              ? 'Tap the heart on a suite to add it to your shortlist.'
+              : `We could not find any available suites matching "${searchQuery}" under the selected category filters.`}
           </p>
           <button 
             className="gold-button"
             onClick={() => {
-              setFilterType('all');
-              setSearchQuery('');
+              if (wishlistOnly) navigate('/suites');
+              else {
+                setFilterType('all');
+                setSearchQuery('');
+              }
             }}
           >
-            Reset Filters
+            {wishlistOnly ? 'Explore Suites' : 'Reset Filters'}
           </button>
         </div>
       )}

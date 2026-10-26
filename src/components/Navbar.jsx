@@ -47,6 +47,8 @@ export const Navbar = ({
             <li><span className="nav-link" style={{ cursor: 'pointer' }} onClick={() => handleNavClick('/suites')}>Suites</span></li>
             <li><span className="nav-link" style={{ cursor: 'pointer' }} onClick={() => handleNavClick('/experiences')}>Experiences</span></li>
             <li><span className="nav-link" style={{ cursor: 'pointer' }} onClick={() => handleNavClick('/faq')}>FAQ</span></li>
+            <li><span className="nav-link" style={{ cursor: 'pointer' }} onClick={() => handleNavClick('/saved')}>Saved</span></li>
+            <li><span className="nav-link" style={{ cursor: 'pointer' }} onClick={() => handleNavClick('/account')}>My Bookings</span></li>
           </ul>
         </nav>
 
@@ -97,6 +99,8 @@ export const Navbar = ({
           <span className="mobile-drawer-link" onClick={() => handleNavClick('/suites')}>Suites</span>
           <span className="mobile-drawer-link" onClick={() => handleNavClick('/experiences')}>Experiences</span>
           <span className="mobile-drawer-link" onClick={() => handleNavClick('/faq')}>FAQ</span>
+          <span className="mobile-drawer-link" onClick={() => handleNavClick('/saved')}>Saved Suites</span>
+          <span className="mobile-drawer-link" onClick={() => handleNavClick('/account')}>My Bookings</span>
           
           {user ? (
             <div className="mobile-drawer-user-section">

@@ -6,14 +6,18 @@ import { About } from './components/About.jsx';
 import { Rooms } from './components/Rooms.jsx';
 import { Amenities } from './components/Amenities.jsx';
 import { FAQ } from './components/FAQ.jsx';
+import { Testimonials } from './components/Testimonials.jsx';
 import { Footer } from './components/Footer.jsx';
 import { PremiumLoader } from './components/PremiumLoader.jsx';
 import { BookRoomPage } from './components/BookRoomPage.jsx';
 import { AuthModal } from './components/AuthModal.jsx';
+import { AccountPage } from './components/AccountPage.jsx';
 import { ScrollToTop } from './components/ScrollToTop.jsx';
 import AdminPanel from './components/AdminPanel.jsx';
+import { hotelApi } from './api/hotelApi.js';
 import { useBooking } from './hooks/useBooking.js';
 import { useAuth } from './hooks/useAuth.js';
+import { getStayNights } from './utils/bookingDates.js';
 import './App.css';
 
 function App() {
@@ -21,6 +25,14 @@ function App() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [prevUser, setPrevUser] = useState(null);
+  const [savedRoomIds, setSavedRoomIds] = useState(() => {
+    try {
+      return hotelApi.getSavedRoomIds();
+    } catch (error) {
+      console.error('Failed to load saved suites.', error);
+      return [];
+    }
+  });
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -53,6 +65,23 @@ function App() {
     setToast({ message, type });
   };
 
+  const toggleSavedRoom = (roomId) => {
+    try {
+      setSavedRoomIds(hotelApi.toggleSavedRoom(roomId));
+    } catch (error) {
+      console.error('Failed to save suite shortlist.', error);
+      showToast(error instanceof Error ? error.message : 'Could not save this suite. Check your browser storage and try again.', 'error');
+    }
+  };
+
+  const handleAvailabilitySearch = (filters) => {
+    if (getStayNights(filters.checkIn, filters.checkOut) < 1) return;
+    setCheckIn(filters.checkIn);
+    setCheckOut(filters.checkOut);
+    setGuests(filters.guests);
+    booking.setActiveFilters(filters);
+  };
+
   // Toast clearing timeout
   useEffect(() => {
     if (toast) {
@@ -60,6 +89,16 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [toast]);
+
+  useEffect(() => hotelApi.subscribe((key) => {
+    if (key !== 'aurelia_saved_rooms') return;
+    try {
+      setSavedRoomIds(hotelApi.getSavedRoomIds());
+    } catch (error) {
+      console.error('Failed to refresh saved suites.', error);
+      showToast(error instanceof Error ? error.message : 'Could not refresh saved suites.', 'error');
+    }
+  }), []);
 
   // Monitor auth sessions to display welcome toasts
   useEffect(() => {
@@ -94,7 +133,7 @@ function App() {
 
   // Floating Navbar CTA click selection
   const handleNavBookClick = () => {
-    navigate('/book/azure-ocean', { state: activeFilters });
+    navigate('/suites');
   };
 
   const handleSearch = () => {
@@ -133,6 +172,7 @@ function App() {
           View Suites & Villas
         </button>
       </section>
+      <Testimonials />
     </>
   );
 
@@ -173,8 +213,24 @@ function App() {
                   roomsError={roomsError}
                   onRetry={retryRooms}
                   activeFilters={activeFilters}
+                  savedRoomIds={savedRoomIds}
+                  onToggleSaved={toggleSavedRoom}
+                  onUpdateAvailability={handleAvailabilitySearch}
                 />
               } />
+
+              <Route path="/saved" element={
+                <Rooms
+                  rooms={hotelApi.getAllRooms()}
+                  loadingRooms={false}
+                  activeFilters={activeFilters}
+                  savedRoomIds={savedRoomIds}
+                  onToggleSaved={toggleSavedRoom}
+                  wishlistOnly
+                />
+              } />
+
+              <Route path="/account" element={<AccountPage user={auth.user} />} />
 
               {/* Experiences Page */}
               <Route path="/experiences" element={<Amenities />} />

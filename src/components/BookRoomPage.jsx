@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { hotelApi, ROOMS_DATA, ADDONS_LIST } from '../api/hotelApi.js';
+import { hotelApi, ADDONS_LIST } from '../api/hotelApi.js';
 import { addDaysToDate, getDateOffset, getStayNights } from '../utils/bookingDates.js';
-import { ArrowLeft, Sparkles, Check, CreditCard, Ticket, ChevronLeft, ArrowRight, CheckCircle2, Calendar, Users, Square, Compass } from 'lucide-react';
+import { ArrowLeft, Sparkles, Check, Ticket, ChevronLeft, ArrowRight, CheckCircle2, Calendar, Users, Square, Compass } from 'lucide-react';
 
 export const BookRoomPage = ({ user }) => {
   const { roomId } = useParams();
@@ -10,7 +10,7 @@ export const BookRoomPage = ({ user }) => {
   const location = useLocation();
 
   // Find the selected room
-  const room = ROOMS_DATA.find((r) => r.id === roomId);
+  const room = hotelApi.getRoom(roomId);
 
   // Fallback check if room is invalid
   useEffect(() => {
@@ -31,16 +31,13 @@ export const BookRoomPage = ({ user }) => {
   const [bookingRef, setBookingRef] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('demo-card');
 
   const [form, setForm] = useState({
     name: '',
     email: '',
     phone: '',
-    requests: '',
-    cardNumber: '',
-    cardExpiry: '',
-    cardCvv: '',
-    cardName: ''
+    requests: ''
   });
 
   // Pre-fill user details if logged in
@@ -77,50 +74,13 @@ export const BookRoomPage = ({ user }) => {
     }
   };
 
-  const handleCardNumberChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 16) value = value.slice(0, 16);
-    const formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-    setForm(prev => ({ ...prev, cardNumber: formatted }));
-  };
-
-  const handleExpiryChange = (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 4) value = value.slice(0, 4);
-    if (value.length > 2) {
-      value = `${value.slice(0, 2)}/${value.slice(2)}`;
-    }
-    setForm(prev => ({ ...prev, cardExpiry: value }));
-  };
-
-  const handleCvvChange = (e) => {
-    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-    setForm(prev => ({ ...prev, cardCvv: value }));
-  };
-
-  const isExpiryValid = () => {
-    const match = /^(\d{2})\/(\d{2})$/.exec(form.cardExpiry);
-    if (!match) return false;
-
-    const month = Number(match[1]);
-    const year = 2000 + Number(match[2]);
-    if (month < 1 || month > 12) return false;
-
-    const expiry = new Date(year, month, 0, 23, 59, 59);
-    return expiry >= new Date();
-  };
-
   const isFormValid = () => {
     return (
       validStay &&
       validGuestCount &&
       form.name.trim() !== '' &&
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()) &&
-      form.phone.replace(/\D/g, '').length >= 7 &&
-      form.cardNumber.replace(/\s/g, '').length === 16 &&
-      isExpiryValid() &&
-      form.cardCvv.length >= 3 &&
-      form.cardName.trim() !== ''
+      form.phone.replace(/\D/g, '').length >= 7
     );
   };
 
@@ -138,6 +98,7 @@ export const BookRoomPage = ({ user }) => {
           check_out: checkOut,
           guests,
           addons: selectedAddons,
+          payment_method: paymentMethod,
           customer: {
             name: form.name.trim(),
             email: form.email.trim(),
@@ -200,7 +161,7 @@ export const BookRoomPage = ({ user }) => {
         <div className="booking-steps-nav">
           <span className={step >= 1 ? 'gold-text' : ''} style={{ fontWeight: step === 1 ? 600 : 400 }}>1. Upgrade</span>
           <span style={{ color: 'var(--gold-border)' }}>&mdash;</span>
-          <span className={step >= 2 ? 'gold-text' : ''} style={{ fontWeight: step === 2 ? 600 : 400 }}>2. Billing</span>
+          <span className={step >= 2 ? 'gold-text' : ''} style={{ fontWeight: step === 2 ? 600 : 400 }}>          2. Payment</span>
           <span style={{ color: 'var(--gold-border)' }}>&mdash;</span>
           <span className={step >= 3 ? 'gold-text' : ''} style={{ fontWeight: step === 3 ? 600 : 400 }}>3. Receipt</span>
         </div>
@@ -390,34 +351,11 @@ export const BookRoomPage = ({ user }) => {
           {step === 2 && (
             <div className="animate-fade-in" style={{ textAlign: 'left' }}>
               <h2 className="section-title" style={{ fontSize: '1.8rem', marginBottom: '10px' }}>
-                Billing & <span className="gold-text">Security</span>
+                Guest Details & <span className="gold-text">Payment</span>
               </h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '30px' }}>
-                Demo checkout only: no payment is processed. Use test details only; payment details are not sent with the reservation.
+                This is a secure demo checkout. No payment is processed, and card details are never requested or stored.
               </p>
-
-              {/* Credit Card visual */}
-              <div className="credit-card-wrapper" style={{ marginBottom: '40px' }}>
-                <div className="credit-card">
-                  <div className="card-top">
-                    <div className="card-chip" />
-                    <span className="card-type">AURELIA ELITE</span>
-                  </div>
-                  <div className="card-number">
-                    {form.cardNumber || '•••• •••• •••• ••••'}
-                  </div>
-                  <div className="card-bottom">
-                    <div className="card-meta-block">
-                      <span className="card-meta-label">Card Holder</span>
-                      <span className="card-meta-value">{form.cardName || 'YOUR NAME'}</span>
-                    </div>
-                    <div className="card-meta-block" style={{ alignItems: 'flex-end' }}>
-                      <span className="card-meta-label">Expires</span>
-                      <span className="card-meta-value">{form.cardExpiry || 'MM/YY'}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* Checkout Credentials Forms */}
               <div className="checkout-form-grid">
@@ -451,51 +389,30 @@ export const BookRoomPage = ({ user }) => {
                     onChange={(e) => setForm(prev => ({ ...prev, phone: e.target.value }))}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Name on Card</label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="Alexander Mercer"
-                    value={form.cardName}
-                    onChange={(e) => setForm(prev => ({ ...prev, cardName: e.target.value }))}
-                  />
-                </div>
                 <div className="form-group full-width">
-                  <label>Card Number</label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="4242 4242 4242 4242"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    value={form.cardNumber}
-                    onChange={handleCardNumberChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Expiry Date</label>
-                  <input 
-                    type="text" 
-                    required 
-                    placeholder="MM/YY"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    value={form.cardExpiry}
-                    onChange={handleExpiryChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Security Code (CVV)</label>
-                  <input 
-                    type="password" 
-                    required 
-                    placeholder="•••"
-                    inputMode="numeric"
-                    autoComplete="off"
-                    value={form.cardCvv}
-                    onChange={handleCvvChange}
-                  />
+                  <label>Demo Payment Option</label>
+                  <div className="payment-options">
+                    <label className={`payment-option ${paymentMethod === 'demo-card' ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="demo-card"
+                        checked={paymentMethod === 'demo-card'}
+                        onChange={(event) => setPaymentMethod(event.target.value)}
+                      />
+                      <span><strong>Demo card checkout</strong><small>No card details or charge</small></span>
+                    </label>
+                    <label className={`payment-option ${paymentMethod === 'pay-at-property' ? 'selected' : ''}`}>
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="pay-at-property"
+                        checked={paymentMethod === 'pay-at-property'}
+                        onChange={(event) => setPaymentMethod(event.target.value)}
+                      />
+                      <span><strong>Pay at the property</strong><small>Demo reservation only</small></span>
+                    </label>
+                  </div>
                 </div>
                 <div className="form-group full-width">
                   <label>Special Requests</label>
@@ -520,7 +437,7 @@ export const BookRoomPage = ({ user }) => {
                   disabled={!isFormValid() || submitting}
                   style={{ opacity: isFormValid() && !submitting ? 1 : 0.5, cursor: isFormValid() && !submitting ? 'pointer' : 'not-allowed' }}
                 >
-                  <CreditCard size={14} />
+                  <CheckCircle2 size={14} />
                   <span>{submitting ? 'Confirming Reservation...' : 'Confirm Suite Reservation'}</span>
                 </button>
               </div>
@@ -581,17 +498,24 @@ export const BookRoomPage = ({ user }) => {
 
                   <div className="ticket-note">
                     <span className="ticket-ref-val">Demo confirmation</span>
-                    <span className="ticket-note-label">Not a valid travel document</span>
+                    <span className="ticket-note-label">
+                      {paymentMethod === 'pay-at-property' ? 'Pay at property · demo only' : 'Demo checkout · no charge'}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Step 3 Actions */}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-                <button className="gold-button" onClick={() => navigate('/')} style={{ width: '100%', justifyContent: 'center', padding: '14px' }}>
-                  <Ticket size={14} />
-                  <span>Return to Home & Suites</span>
-                </button>
+                <div className="receipt-actions">
+                  <button className="outline-button" onClick={() => navigate('/account')}>
+                    <Ticket size={14} />
+                    <span>View My Bookings</span>
+                  </button>
+                  <button className="gold-button" onClick={() => navigate('/')} style={{ justifyContent: 'center', padding: '14px' }}>
+                    <span>Return to Home</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}

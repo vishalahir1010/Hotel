@@ -75,6 +75,8 @@ export const useBooking = () => {
         const data = await hotelApi.getRooms({
           guests: activeFilters.guests,
           roomType: activeFilters.roomType,
+          checkIn: activeFilters.checkIn,
+          checkOut: activeFilters.checkOut,
         });
         if (isCurrentRequest) setRooms(data);
       } catch (err) {
@@ -92,11 +94,18 @@ export const useBooking = () => {
     };
   }, [activeFilters, roomRequestKey]);
 
+  useEffect(() => {
+    const refreshRooms = () => setRoomRequestKey(key => key + 1);
+    return hotelApi.subscribe((key) => {
+      if (key === 'aurelia_bookings') refreshRooms();
+    });
+  }, []);
+
   const retryRooms = () => setRoomRequestKey((key) => key + 1);
 
   // Apply filters when clicking search
   const handleSearchSubmit = () => {
-    if (getStayNights(checkIn, checkOut) < 1) return false;
+    if (getStayNights(checkIn, checkOut) < 1 || checkIn < getDateOffset(0)) return false;
 
     setActiveFilters({
       checkIn,

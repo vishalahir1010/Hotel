@@ -46,6 +46,10 @@ body,
     grid-template-columns: 1fr;
   }
 
+  .availability-search {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -83,6 +87,10 @@ body,
 
   .rooms-section {
     padding: 60px 16px;
+  }
+
+  .availability-search {
+    grid-template-columns: 1fr;
   }
 }
 

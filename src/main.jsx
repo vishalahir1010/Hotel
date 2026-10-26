@@ -13,6 +13,7 @@ import './styles/Footer.css'
 import './styles/Booking.css'
 import './styles/PremiumLoader.css'
 import './styles/responsive.css'
+import './styles/Account.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(

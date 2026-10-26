@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
+import { hotelApi, ROOMS_DATA } from '../api/hotelApi.js';
 
 const TESTIMONIALS_DATA = [
   {
@@ -27,16 +28,40 @@ const TESTIMONIALS_DATA = [
 
 export const Testimonials = () => {
   const [activeIdx, setActiveIdx] = useState(0);
+  const [guestReviews, setGuestReviews] = useState([]);
+
+  useEffect(() => {
+    let isCurrentRequest = true;
+    hotelApi.getReviews()
+      .then(reviews => {
+        if (isCurrentRequest) setGuestReviews(reviews);
+      })
+      .catch(error => console.error('Failed to load guest reviews.', error));
+    return () => {
+      isCurrentRequest = false;
+    };
+  }, []);
+
+  const allReviews = [
+    ...TESTIMONIALS_DATA,
+    ...guestReviews.map(review => ({
+      name: review.name,
+      role: `Verified guest · ${review.room_name}`,
+      rating: review.rating,
+      text: review.comment,
+      avatar: ROOMS_DATA.find(room => room.id === review.room_id)?.images[0] || ''
+    }))
+  ];
 
   const nextSlide = () => {
-    setActiveIdx((prev) => (prev + 1) % TESTIMONIALS_DATA.length);
+    setActiveIdx((prev) => (prev + 1) % allReviews.length);
   };
 
   const prevSlide = () => {
-    setActiveIdx((prev) => (prev - 1 + TESTIMONIALS_DATA.length) % TESTIMONIALS_DATA.length);
+    setActiveIdx((prev) => (prev - 1 + allReviews.length) % allReviews.length);
   };
 
-  const active = TESTIMONIALS_DATA[activeIdx];
+  const active = allReviews[activeIdx % allReviews.length];
 
   return (
     <section id="testimonials" className="testimonials-section">
@@ -123,7 +148,7 @@ export const Testimonials = () => {
 
         {/* Slide Indicator Dots */}
         <div className="testimonial-dots">
-          {TESTIMONIALS_DATA.map((_, idx) => (
+          {allReviews.map((_, idx) => (
             <button 
               key={idx} 
               className={`dot-btn ${idx === activeIdx ? 'active' : ''}`}
